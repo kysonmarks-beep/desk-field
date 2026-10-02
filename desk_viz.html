@@ -53,6 +53,7 @@ button:focus-visible,summary:focus-visible{outline:2px solid var(--long);outline
 .chart .cur{stroke:var(--ink-2);stroke-width:1;vector-effect:non-scaling-stroke}
 .chart .dot{fill:var(--ink)} .chart.good .dot{fill:var(--good)} .chart.bad .dot{fill:var(--bad)}
 .chart .scrub{position:absolute;top:-4px;transform:translateX(-50%);font-size:11px;color:var(--ink-3);white-space:nowrap;pointer-events:none}
+.chart .note{position:absolute;right:0;top:-4px;font-size:10px;color:var(--ink-3);white-space:nowrap;pointer-events:none}
 .ranges{display:flex;justify-content:space-between;margin-top:12px;padding-bottom:12px;border-bottom:1px solid var(--line)} .ranges button{background:transparent;border:0;color:var(--ink-2);font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:.02em;padding:5px 10px;cursor:pointer;border-radius:8px}
 .ranges.good button{color:var(--good)} .ranges.bad button{color:var(--bad)} .ranges button[aria-pressed="true"]{color:#07080e;background:var(--ink)} .ranges.good button[aria-pressed="true"]{background:var(--good)} .ranges.bad button[aria-pressed="true"]{background:var(--bad)}
 .hero .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(120px,100%),1fr));gap:10px 18px;min-width:0}
@@ -77,16 +78,13 @@ button:focus-visible,summary:focus-visible{outline:2px solid var(--long);outline
 .stage{position:relative;margin:8px auto 0;max-width:960px;min-width:0;background:var(--bg);border-radius:var(--r);overflow:hidden}
 .stage canvas{display:block;width:100%;max-width:100%;aspect-ratio:1/1;background:var(--bg);cursor:crosshair;touch-action:pan-y}
 .stage canvas.lbl{position:absolute;left:0;top:0;pointer-events:none;background:transparent;aspect-ratio:auto;z-index:1}
-/* the field's own overlay: a small header, then either the legend or the planet card at the bottom */
+/* the field's own overlay: a small header and the legend at the bottom */
 .fov{position:absolute;inset:0;pointer-events:none;z-index:2}
 .fov-top{position:absolute;left:16px;right:16px;top:calc(12px + env(safe-area-inset-top,0px));display:flex;justify-content:space-between;align-items:baseline;font-size:11px;font-weight:500;color:rgba(170,180,215,.6)}
 .fov-top::before{content:"";position:absolute;left:-16px;right:-16px;top:-80px;height:150px;background:linear-gradient(rgba(5,6,11,.9),rgba(5,6,11,0));z-index:-1;pointer-events:none}
 .fov-top b{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:rgba(236,240,255,.86)}
 .fov-bot{position:absolute;left:12px;right:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;max-width:470px}
-.fov-seg{display:none;gap:3px;height:3px}
-.fov-seg span{flex:1;height:3px;border-radius:2px;background:rgba(170,180,215,.16);position:relative;overflow:hidden}
-.fov-seg span.done{background:rgba(236,240,255,.4)} .fov-seg span.now{background:var(--gold)}
-.fov.riding .fov-seg{display:flex}
+.fov-seg{display:none}
 .glass{background:rgba(10,12,20,.66);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(150,170,200,.14);border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.45)}
 .fov-panel{padding:12px 14px;pointer-events:auto}
 .fov-name{font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:.42em;text-transform:uppercase;color:rgba(236,240,255,.92);line-height:1;transition:opacity .9s ease}
@@ -100,24 +98,6 @@ button:focus-visible,summary:focus-visible{outline:2px solid var(--long);outline
 .fbtn.gold{background:rgba(232,185,79,.16);border-color:rgba(232,185,79,.5);color:#f4d27a}
 .fbtn.icon{width:36px;padding:0}
 .fbtn[hidden]{display:none}
-.fov.riding .fov-panel,.fov.focus .fov-panel{display:none}
-.planet{display:none;pointer-events:auto;padding:12px 14px 10px}
-.fov.focus .planet,.fov.riding .planet{display:block}
-.planet .ph{display:flex;align-items:center;gap:10px}
-.planet .ph img,.planet .ph .mono{width:38px;height:38px;border-radius:50%;background:#0a0c14;padding:4px;border:1.5px solid var(--line-2);flex:0 0 auto;object-fit:contain;image-rendering:auto}
-.planet .ph .mono{font-family:var(--mono);font-weight:700;font-size:11px;line-height:28px;text-align:center;padding:4px 0;color:var(--ink)}
-.planet .ph.gold img,.planet .ph.gold .mono{border-color:var(--gold)} .planet .ph.long img,.planet .ph.long .mono{border-color:var(--long)} .planet .ph.short img,.planet .ph.short .mono{border-color:var(--short)}
-.planet .ph .nm{font-family:var(--sans);font-weight:700;font-size:20px;letter-spacing:-.01em;line-height:1.1}
-.planet .ph .nm small{font-weight:500;font-size:12px;color:var(--ink-2);margin-left:6px;letter-spacing:0}
-.planet .ph .sub{font-size:12px;color:var(--ink-2);margin-top:2px}
-.planet .ph .px{margin-left:auto;text-align:right;font-weight:600;font-size:15px;white-space:nowrap} .planet .ph .px small{display:block;font-weight:500;font-size:11px;color:var(--ink-3)}
-.planet .px.good{color:var(--good)} .planet .px.bad{color:var(--bad)}
-.planet .pl{margin-top:9px;display:grid;gap:4px;font-size:12px;color:var(--ink-2)}
-.planet .pl b{color:var(--ink);font-weight:600} .planet .pl .good{color:var(--good)} .planet .pl .bad{color:var(--bad)}
-.planet .pl i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;background:var(--ink-3)} .planet .pl i.long{background:var(--long)} .planet .pl i.short{background:var(--short)} .planet .pl i.gold{background:var(--gold)} .planet .pl i.white{background:#e8ecff}
-.planet .pf{display:flex;align-items:center;gap:8px;margin-top:10px}
-.planet .pf .st{flex:1;text-align:center;font-size:11px;font-weight:500;color:var(--ink-2)} .planet .pf .st b{color:var(--ink)}
-.planet .pf a{color:var(--long);text-decoration:none;font-weight:600;font-size:12px;cursor:pointer}
 .stage .zr{position:absolute;left:12px;top:12px;pointer-events:auto;z-index:3}
 @media (min-width:601px){ .fov-top{display:none} .fov-name{font-size:18px} }
 .scenecap{display:none;font-size:11px;color:var(--ink-3);margin:6px 0 0;line-height:1.5}
@@ -266,7 +246,7 @@ h4{margin:0 0 8px;font-size:11px;color:var(--ink-3);font-weight:500}
       <div class="pnl" id="hPnl">—</div>
       <div class="chg" id="chg1"><i></i><b>—</b><span>Today</span></div>
       <div class="chg" id="chg2"><i></i><b>—</b><span>All time</span></div>
-      <div class="chart" id="chart"><svg id="chartSvg" viewBox="0 0 100 40" preserveAspectRatio="none"></svg><div class="scrub" id="scrub" hidden></div></div>
+      <div class="chart" id="chart"><svg id="chartSvg" viewBox="0 0 100 40" preserveAspectRatio="none"></svg><div class="scrub" id="scrub" hidden></div><div class="note" id="chartNote"></div></div>
       <div class="ranges" id="ranges"></div>
     </div>
     <div class="facts">
@@ -291,12 +271,7 @@ h4{margin:0 0 8px;font-size:11px;color:var(--ink-3);font-weight:500}
       <div class="fov-bot">
         <div class="fov-seg" id="fovSeg"></div>
         <div class="fov-panel glass" id="fovPanel"><div class="fov-name" id="fovName"></div><div class="fov-cap" id="fovCap"></div>
-          <div class="fov-row"><div class="fov-cnt" id="fovCnt"></div><div class="fov-tools"><button class="fbtn" id="fsBtn" type="button">Fullscreen</button><button class="fbtn gold" id="rideBtn" type="button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Ride</button></div></div></div>
-        <div class="planet glass" id="planet">
-          <div class="ph" id="planetHead"></div>
-          <div class="pl" id="planetLines"></div>
-          <div class="pf"><button class="fbtn icon" id="ridePrev" type="button" aria-label="previous name"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7z"/></svg></button><div class="st" id="rideStatus"></div><button class="fbtn icon" id="ridePlay" type="button" aria-label="auto-ride on or off"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button><button class="fbtn icon" id="rideNext" type="button" aria-label="next name"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7z"/></svg></button><button class="fbtn icon" id="rideExit" type="button" aria-label="full view"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg></button></div>
-        </div>
+          <div class="fov-row"><div class="fov-cnt" id="fovCnt"></div><div class="fov-tools"><button class="fbtn" id="fsBtn" type="button">Fullscreen</button></div></div></div>
       </div></div>
     <div class="corner tl" id="cTl"></div>
     <div class="corner tr" id="cTr"></div>
@@ -402,6 +377,7 @@ var Chart = (function(){
     var last = pts[n-1][1], cls = last > base ? 'good' : last < base ? 'bad' : '';
     $('chart').className = 'chart ' + cls; $('ranges').className = 'ranges ' + cls;
     var rest = pts[n-1][0] < 0.999 ? '<line class="rest" x1="' + X(n-1).toFixed(2) + '" x2="' + W + '" y1="' + Y(last).toFixed(2) + '" y2="' + Y(last).toFixed(2) + '"/>' : '';
+    var nt = $('chartNote'); if (nt) nt.textContent = (range === '1D' && pts[n-1][0] < 0.999 && S0 && S0.book.open > 0) ? 'marked to ' + pts[n-1][2].slice(11, 16) + ' · dotted: no newer mark' : '';
     svg.innerHTML = '<line class="base" x1="0" x2="' + W + '" y1="' + Y(base).toFixed(2) + '" y2="' + Y(base).toFixed(2) + '"/>'
       + '<path class="line" d="' + d + '"/>' + rest
       + '<line class="cur" id="curLine" x1="0" x2="0" y1="0" y2="' + H + '" style="display:none"/>'
@@ -412,8 +388,8 @@ var Chart = (function(){
     var big = $('hPnl'); big.textContent = mode === 'equity' ? '$' + v.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : money(v); big.className = 'pnl';
     put('chg1', v - base, ref, when);
   }
-  function show(i){ var svg = $('chartSvg'), p = pts[i], x = svg._X(i), y = svg._Y(p[1]); head(p[1], base, fmtT(p)); $('curLine').style.display = ''; $('curLine').setAttribute('x1', x); $('curLine').setAttribute('x2', x); $('curDot').setAttribute('cx', x); $('curDot').setAttribute('cy', y); var sc = $('scrub'); sc.hidden = false; sc.style.left = x + '%'; sc.textContent = fmtT(p); }
-  function rest(){ var n = pts.length, p = pts[n-1]; head(p[1], base, range === '1D' ? 'Today' : range === 'ALL' ? 'All time' : 'Past ' + range.replace('1D', 'day').replace('1W', 'week').replace('1M', 'month').replace('3M', '3 months').replace('YTD', 'year to date').replace('1Y', 'year')); $('scrub').hidden = true; if ($('curLine')) { $('curLine').style.display = 'none'; $('curDot').setAttribute('cx', $('chartSvg')._X(n-1)); $('curDot').setAttribute('cy', $('chartSvg')._Y(p[1])); } }
+  function show(i){ var svg = $('chartSvg'), p = pts[i], x = svg._X(i), y = svg._Y(p[1]); head(p[1], base, fmtT(p)); $('curLine').style.display = ''; $('curLine').setAttribute('x1', x); $('curLine').setAttribute('x2', x); $('curDot').setAttribute('cx', x); $('curDot').setAttribute('cy', y); var sc = $('scrub'); sc.hidden = false; sc.style.left = x + '%'; sc.textContent = fmtT(p); $('chartNote').hidden = true; }
+  function rest(){ var n = pts.length, p = pts[n-1]; head(p[1], base, range === '1D' ? 'Today' : range === 'ALL' ? 'All time' : 'Past ' + range.replace('1D', 'day').replace('1W', 'week').replace('1M', 'month').replace('3M', '3 months').replace('YTD', 'year to date').replace('1Y', 'year')); $('scrub').hidden = true; $('chartNote').hidden = false; if ($('curLine')) { $('curLine').style.display = 'none'; $('curDot').setAttribute('cx', $('chartSvg')._X(n-1)); $('curDot').setAttribute('cy', $('chartSvg')._Y(p[1])); } }
   function idxAt(ev){ var r = $('chart').getBoundingClientRect(), x = ((ev.touches ? ev.touches[0] : ev).clientX - r.left)/r.width, best = 0, bd = 9; pts.forEach(function(p, i){ var d = Math.abs(p[0] - x); if (d < bd) { bd = d; best = i; } }); return best; }
   var down = false;
   function wire(){
@@ -450,7 +426,7 @@ var LOGO_ALIAS = {"DIA":"SPY","XBI":"SPY","XLE":"SPY","XLF":"SPY","XLK":"SPY","X
 var LOGO_IMG = {}, LOGO_CB = null; Object.keys(LOGOS).forEach(function(k){ var im = new Image(); im.onload = function(){ if (LOGO_CB) LOGO_CB(); }; im.src = LOGOS[k]; LOGO_IMG[k] = im; });
 function logoFor(sym){ var im = LOGO_IMG[sym]; return im && im.complete && im.naturalWidth ? im : null; }   // funds that share an issuer mark show their ticker instead
 var SCENES = [['field', 'field', 'sectors and decisions in one view']];   // v0.1.8 design: one rotating 3D view (was galaxy / sectors / decisions / book)
-var LEGEND = ['every name is a neuron, grouped with the rest of its sector; the bright core is the desk', 'blue: bullish signals · pink: bearish · gold: the desk traded it · grey: quiet today', 'impulses run the wires between related names; busier names fire more often', 'sparks are the desk\'s reviews: gold triggered, white watching, coloured passes', 'the number beside a name is its realized P&L over the sessions on file, plus any open position', 'the stars and haze behind the brain are decoration only · drag to turn, tap a name, or ride']; var RIDE_HOLD = 7;
+var LEGEND = ['each name is a neuron, grouped with its sector · the bright core is the desk', 'blue bullish · pink bearish · gold traded · grey quiet', 'impulses run the wires between related names; busier names fire more', 'sparks are the desk\'s reviews: gold trade, white watch', 'the number by a name is its realized P&L, plus any open position', 'stars, haze and the head are decoration · drag to turn, pinch, tap a name'];
 function $(id){ return document.getElementById(id); }
 var builtAt = (function(){ var d = DATA.generated_at ? new Date(DATA.generated_at) : null; return d && !isNaN(d) ? d : null; })();
 function ageMin(){ return builtAt ? Math.max(0, Math.round((Date.now() - builtAt.getTime())/60000)) : null; }
@@ -573,23 +549,8 @@ function render(){
   $('cBr').textContent = '[ paper desk · practice money · nothing here places orders ]';
   $('foot').innerHTML = 'A <b>signal</b> is an automatic alert: price closed above or below a level (the opening range, or yesterday\'s high or low). The desk then reviews each name and decides: trade, watch, or pass. A <b>trade</b> passes a rule check first (cost cap, spread, timing, daily loss limit). '
     + '<b>× risk</b> measures an outcome against the distance to the level where the idea would be wrong: +1.0 means the move gained as much as it risked, −1.0 means it lost that much. A signal\'s own score assumes entering right after the alert and exiting when the level fails or at the close. '
-    + '<b>Reaction time</b> is how long after an alert the desk decided, and how much of the move had already happened. Everything is computed from the desk\'s own files after the fact and nothing on this page places orders. The <b>field</b> shows the day as one slowly turning 3D brain. Each name is a neuron with a small planet at its core, grouped with the other names of its sector; blue means bullish signals, pink bearish, gold a name the desk traded, grey a quiet name. Impulses travel the wires between related names, more often from names with more signals, and sparks are the desk\'s own reviews (gold triggered, white watching, blue or pink passes). The bright core at the centre is the desk. The number beside a name is its realized P&amp;L over the sessions on file plus any open position. The stars, the haze and the faint dust shell around the brain are decoration only and mean nothing. Drag to turn it, pinch to zoom, tap a name to fly to it, double-tap for the full view. <b>Ride the field</b> flies from name to name along the wires and shows each one\'s card; the order is a short tour of the brain, not a ranking. The page refreshes itself every 15 minutes.';
+    + '<b>Reaction time</b> is how long after an alert the desk decided, and how much of the move had already happened. Everything is computed from the desk\'s own files after the fact and nothing on this page places orders. The <b>field</b> is the day as a slowly turning brain. Each name is a neuron grouped with its sector: blue bullish signals, pink bearish, gold traded, grey quiet. Impulses travel the wires between related names, more from busier names; sparks are the desk\'s reviews (gold triggered, white watching). The bright core is the desk. The number by a name is its realized P&amp;L on file plus any open position. The stars, haze, dust and the robotic head at the start are decoration only. Drag to turn, pinch to zoom, tap a name to fly to it, double-tap for the full view. The page refreshes itself every 15 minutes.';
   Field.load(F, scene, focus); renderOverlay();
-}
-function planetCard(nd){                                                        // the planet card: what the page knows about one name, from the data only
-  var row = nd.row, sym = row.symbol, lg = LOGOS[sym], longs = nd.flags.filter(function(f){ return f.direction === 'long'; }).length, shorts = nd.flags.length - longs;
-  var cls = nd.gold ? 'gold' : nd.flags.length ? (longs >= shorts ? 'long' : 'short') : '', shown = nd.cum + (nd.open || 0), traded = nd.tickets.length > 0 || shown !== 0;
-  $('planetHead').className = 'ph ' + cls;
-  $('planetHead').innerHTML = (lg ? '<img src="' + lg + '" alt="">' : '<span class="mono">' + esc(sym.slice(0, 3)) + '</span>')
-    + '<div><div class="nm">' + esc(sym) + (row.cluster ? '<small>' + esc(String(row.cluster).toLowerCase()) + '</small>' : '') + '</div><div class="sub">' + esc(dispW(row.disposition)) + (row.grade ? ' · grade ' + esc(row.grade) : '') + (row.reason_code ? ' · ' + esc(reasonW(row.reason_code)) : '') + '</div></div>'
-    + '<div class="px ' + (traded ? (shown > 0 ? 'good' : shown < 0 ? 'bad' : '') : '') + '">' + (traded ? money(shown) : (row.last != null ? '$' + row.last : '—')) + '<small>' + (traded ? 'P&amp;L on ' + esc(sym) + (nd.open ? ', incl. open' : '') : (row.last != null ? 'last price' : '')) + '</small></div>';
-  var L = [];
-  if (nd.flags.length) { L.push('<span><i class="long"></i>' + longs + ' bullish &nbsp; <i class="short"></i>' + shorts + ' bearish · ' + nd.flags.length + (nd.flags.length === 1 ? ' signal today' : ' signals today') + '</span>');
-    nd.flags.slice(0, 2).forEach(function(f){ L.push('<span>' + esc(flagW(f.flag)) + ' at ' + hm(f.bar_start) + ' · ' + esc(bucketW(f.bucket)) + (f.status === 'ok' ? ' · <b>' + xr(f.r) + '</b>' : '') + '</span>'); }); }
-  else L.push('<span><i></i>no signals today</span>');
-  nd.tickets.forEach(function(e){ var pv = totalPnl(e); L.push('<span><i class="gold"></i>' + (e.direction === 'long' ? 'bullish' : 'bearish') + ' trade · ' + esc(contractW(e)) + ' · <b class="' + (pv > 0 ? 'good' : pv < 0 ? 'bad' : '') + '">' + money(pv) + '</b>' + (isOpen(e) ? ' open' : '') + (e.carried ? ' · carried from ' + e.carried.slice(5) : '') + '</span>'); });
-  if (nd.grades.length) L.push('<span><i class="white"></i>' + nd.grades.length + (nd.grades.length === 1 ? ' review' : ' reviews') + ' by the desk' + (traded && row.last != null ? ' · last price $' + row.last : '') + (nd.tickets.length ? ' · <a data-go="trades">see the trades ›</a>' : nd.flags.length ? ' · <a data-go="signals">see the reviews ›</a>' : '') + '</span>');
-  $('planetLines').innerHTML = L.slice(0, 4).join('');
 }
 function blockCounts(S){ var b={}; S.gate.forEach(function(g){ if(g.verdict==='BLOCK') g.reasons.forEach(function(x){ var c=x.split(' ')[0].replace(/:$/,''); b[c]=(b[c]||0)+1; }); }); return b; }
 function topBlock(S){ var b=blockCounts(S), k=Object.keys(b).sort(function(x,y){return b[y]-b[x];}); return k.length? 'most: '+blockW(k[0])+' ×'+b[k[0]] : 'no blocks'; }
@@ -720,12 +681,12 @@ var Field = (function(){
      passes). The light at the centre is the desk, wired to the traded and busiest names. Colours: blue bullish
      signals, pink bearish, gold traded, grey quiet. The dust shell around it is decoration only. */
   var cv = $('fieldCanvas'), ctx = cv.getContext('2d'), tip = $('tip'), cv2 = $('labelCanvas'), ctx2 = cv2.getContext('2d'), dpr2 = 1, bgc = null;
-  var ride = {on: false, auto: false, i: -1, order: [], phase: 'idle', t: 0, dur: 1, path: null, from: null, to: null, zIn: 2.6, zOut: 1.6};   // the ride: a tour from planet to planet
   var W = 0, H = 0, dpr = 1, SC = 1, small = false, tall = false, S = null, sc = SCENES[0][0], foc = null, nodes = [], raf = null, last = 0, t = 0;
   var offScreen = false, pending = null, PT = null, NP = 0, edges = [], cum = [], tot = 0, rate = 2, pulses = [], sparks = [], acc = 0, beat = 0, sparkAcc = 0, gradeTot = 0;
   var hub = {hub: true, x: 0, y: 0, z: 0, fire: 0, adj: [], active: 3, gold: false, flags: [], tickets: []};
   var yaw = 0.7, pitch = 0.32, dragPitch = 0, zoom = 1, tgtZoom = 1, cen = [0, 0, 0], tgtCen = [0, 0, 0], fade = 1, lastTouch = 0, gest = null, lastTap = 0, dragMoved = false;
   var cyw = 1, syw = 0, cp = 1, sp = 0, DCAM = 2.8, FADE_S = 1.2, CY = 0;
+  var zoomB = 1, wave = 9, intro = {on: false, t: 0, T: 3.2, u: 0, fast: false}, wantIntro = true, HEAD = null;   // breathing zoom, the desk's heartbeat wave, the intro
   var COLS = [[118, 162, 255], [226, 96, 206], [240, 196, 96], [150, 160, 200], [236, 240, 255], [120, 220, 235]];
   var ARM = {long: COLS[0], short: COLS[1]}, GOLD = COLS[2], DIM = COLS[3], WHITE = COLS[4], CYAN = COLS[5], LV = 8;
   var FILL = COLS.map(function(c){ var o = []; for (var k = 0; k < LV; k++) o.push('rgba(' + c.join(',') + ',' + ((k + 0.5)/LV*0.95).toFixed(3) + ')'); return o; });
@@ -742,7 +703,7 @@ var Field = (function(){
     if (cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)) { cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr); }
     if (cv2.width !== Math.round(w*dpr2) || cv2.height !== Math.round(h*dpr2)) { cv2.width = Math.round(w*dpr2); cv2.height = Math.round(h*dpr2); }
     cv2.style.left = cv.offsetLeft + 'px'; cv2.style.top = cv.offsetTop + 'px'; cv2.style.width = w + 'px'; cv2.style.height = h + 'px'; ctx2.imageSmoothingQuality = 'high';
-    W = w; H = h; small = W < 480; tall = small && H > W*1.25; SC = Math.min(W, tall ? W*1.05 : H)*(small ? 0.47 : 0.40); CY = tall ? H*0.42 : H/2; bgc = null; ride.zIn = small ? 2.7 : 2.4;
+    W = w; H = h; small = W < 480; tall = small && H > W*1.25; SC = Math.min(W, tall ? W*1.05 : H)*(small ? 0.47 : 0.40); CY = tall ? H*0.42 : H/2; bgc = null;
   }
   var nebc = null, VIG = null;
   function backdrop(){                                                             // decoration only: a faint nebula (static) and a star field that drifts; drawn once per size
@@ -758,11 +719,6 @@ var Field = (function(){
     VIG = ctx.createRadialGradient(W/2, CY, Math.min(W, H)*0.3, W/2, CY, Math.max(W, H)*0.8); VIG.addColorStop(0, 'rgba(5,6,11,0)'); VIG.addColorStop(1, 'rgba(5,6,11,.8)');
     return c;
   }
-  var SPH = COLS.map(function(c){                                                   // a lit sphere per colour: the planet at each neuron's core
-    var s = document.createElement('canvas'); s.width = s.height = 64; var g = s.getContext('2d'), rg = g.createRadialGradient(23, 21, 2, 32, 32, 31);
-    var hi = c.map(function(v){ return Math.min(255, Math.round(v*0.55 + 120)); }), lo = c.map(function(v){ return Math.round(v*0.38); });
-    rg.addColorStop(0, 'rgba(255,255,255,.98)'); rg.addColorStop(0.18, 'rgba(' + hi.join(',') + ',.97)'); rg.addColorStop(0.62, 'rgba(' + c.join(',') + ',.95)'); rg.addColorStop(1, 'rgba(' + lo.join(',') + ',.98)');
-    g.fillStyle = rg; g.beginPath(); g.arc(32, 32, 31, 0, 6.283); g.fill(); return s; });
   function baseNodes(s){
     var byName = {}, byTicket = {}, byGrade = {};
     s.flags.forEach(function(f){ (byName[f.symbol] = byName[f.symbol] || []).push(f); });
@@ -778,7 +734,7 @@ var Field = (function(){
   }
   function build(s){
     var R = rng(41), list = [];
-    nodes = baseNodes(s); hub.adj = []; hub.fire = 0; pulses = []; sparks = []; acc = 0; beat = 0; sparkAcc = 0; ride.order = []; ride.on = false; ride.auto = false; ride.phase = 'idle'; ride.i = -1;
+    nodes = baseNodes(s); hub.adj = []; hub.fire = 0; pulses = []; sparks = []; acc = 0; beat = 0; sparkAcc = 0;
     var cl = {}; nodes.forEach(function(nd){ var k = nd.row.cluster || '?'; (cl[k] = cl[k] || []).push(nd); });
     var keys = Object.keys(cl).sort(), nk = keys.length;
     keys.forEach(function(k, c){                                                   // one lobe per sector, spread over a sphere
@@ -791,7 +747,7 @@ var Field = (function(){
         for (var m = 0; m < 3; m++) nd[['x', 'y', 'z'][m]] = d[m]*0.62 + a[m]*Math.cos(ang)*rad + b[m]*Math.sin(ang)*rad + d[m]*lift;
         nd.sig = nd.flags.length ? 0.042 + 0.012*Math.min(4, nd.flags.length) : 0.030; nd.lobe = d;
       });
-      for (var h = 0; h < (small ? 60 : 120); h++) {                                // the sector's haze
+      for (var h = 0; h < (small ? 50 : 110); h++) {                                // the sector's haze
         var src = arr[Math.floor(R()*arr.length)], cc = src.gold && R() < 0.3 ? GOLD : src.col;
         list.push([src.x + gauss(R)*0.10, src.y + gauss(R)*0.10, src.z + gauss(R)*0.10, ci(cc), 0.10 + R()*0.08, R()*6.28, 1, -1]);
       }
@@ -802,6 +758,11 @@ var Field = (function(){
       var n = Math.round((nd.flags.length ? 110 + 80*Math.min(4, nd.flags.length) : 70)*(small ? 0.6 : 1)), base = (nd.flags.length ? 0.42 : 0.27)*(nd.took ? 1.35 : 1);
       for (var i = 0; i < n; i++) list.push([nd.x + gauss(R)*nd.sig, nd.y + gauss(R)*nd.sig, nd.z + gauss(R)*nd.sig, ci(R() < 0.18 ? WHITE : nd.col), base*(0.6 + 0.6*R()), R()*6.28, 1, nd.id]);
       if (nd.gold) for (var g = 0; g < (small ? 90 : 160); g++) list.push([nd.x + gauss(R)*nd.sig*1.2, nd.y + gauss(R)*nd.sig*1.2, nd.z + gauss(R)*nd.sig*1.2, 2, 0.55, R()*6.28, 1, nd.id]);
+      var nb = small ? 4 : 6;                                                        // dendrites: short branching filaments out of every neuron, a bright bouton at each tip
+      for (var b2 = 0; b2 < nb; b2++) { var dir0 = norm([gauss(R), gauss(R), gauss(R)]), len = nd.sig*(2.2 + R()*2.4), bend = norm([gauss(R), gauss(R), gauss(R)]), np = small ? 6 : 8;
+        for (var k3 = 1; k3 <= np; k3++) { var u3 = k3/np, w3 = u3*u3*0.5, tip = k3 === np;
+          list.push([nd.x + (dir0[0]*u3 + bend[0]*w3)*len + gauss(R)*0.004, nd.y + (dir0[1]*u3 + bend[1]*w3)*len + gauss(R)*0.004, nd.z + (dir0[2]*u3 + bend[2]*w3)*len + gauss(R)*0.004,
+                     ci(tip ? WHITE : nd.col), (tip ? 0.5 : 0.32 - 0.2*u3)*(nd.flags.length ? 1 : 0.7), R()*6.28, tip ? 1.1 : 0.75, nd.id]); } }
     });
     var E = [], seen = {};                                                         // the wiring
     function add(p, q){ var kp = p.hub ? -1 : p.id, kq = q.hub ? -1 : q.id, key = Math.min(kp, kq) + '_' + Math.max(kp, kq); if (kp === kq || seen[key]) return; seen[key] = 1;
@@ -823,14 +784,14 @@ var Field = (function(){
       for (var k = 0; k < (small ? 8 : 14); k++) { var u = R(), v = 1 - u, j = 0.012;
         list.push([v*v*e.a.x + 2*v*u*e.c[0] + u*u*e.b.x + gauss(R)*j, v*v*e.a.y + 2*v*u*e.c[1] + u*u*e.b.y + gauss(R)*j, v*v*e.a.z + 2*v*u*e.c[2] + u*u*e.b.z + gauss(R)*j, ci(col), 0.16, R()*6.28, 0.9, -1]); } });
     for (var q = 0; q < (small ? 110 : 200); q++) list.push([gauss(R)*0.035, gauss(R)*0.035, gauss(R)*0.035, R() < 0.6 ? 4 : 5, 0.5, R()*6.28, 1, -1]);   // the desk at the centre
-    for (var z = 0; z < (small ? 380 : 700); z++) { var dv = norm([gauss(R), gauss(R), gauss(R)]), rz = 0.95 + R()*0.55;   // decoration: a faint dust shell for depth
+    for (var z = 0; z < (small ? 320 : 640); z++) { var dv = norm([gauss(R), gauss(R), gauss(R)]), rz = 0.95 + R()*0.55;   // decoration: a faint dust shell for depth
       list.push([dv[0]*rz, dv[1]*rz, dv[2]*rz, R() < 0.7 ? 3 : 4, 0.05 + R()*0.10, R()*6.28, 0.8, -2]); }
     NP = list.length; PT = new Float32Array(NP*8); for (var i2 = 0; i2 < NP; i2++) for (var m2 = 0; m2 < 8; m2++) PT[i2*8 + m2] = list[i2][m2];
   }
   function proj(x, y, z){
     x -= cen[0]; y -= cen[1]; z -= cen[2];
     var rx = x*cyw + z*syw, rz = -x*syw + z*cyw, ry = y*cp - rz*sp, rz2 = y*sp + rz*cp, ps = DCAM/(DCAM + rz2);
-    return [W/2 + rx*ps*SC*zoom, CY - ry*ps*SC*zoom, ps, rz2];
+    return [W/2 + rx*ps*SC*zoomB, CY - ry*ps*SC*zoomB, ps, rz2];
   }
   function depth(rz2){ return Math.max(0.18, Math.min(1.2, 0.74 - rz2*0.52)); }
   function synColor(nd){ return nd.hub ? [214, 226, 255] : nd.gold ? GOLD : nd.col === DIM ? [150, 190, 230] : nd.col; }
@@ -850,21 +811,17 @@ var Field = (function(){
     var idle = !gest && Date.now() - lastTouch > 4000;
     if (!reduced) { yaw += dt*(idle ? 0.11 : 0.02); if (idle) dragPitch *= 1 - Math.min(1, dt*0.4); }
     var pt = 0.30 + (reduced ? 0 : 0.26*Math.sin(t*0.12)) + dragPitch; pitch += (Math.max(-1.1, Math.min(1.25, pt)) - pitch)*k;
-    if (ride.on && ride.phase === 'fly') {                                           // the ride: fly along the wire to the next planet, then orbit it
-      ride.t += dt; var ru = Math.min(1, ride.t/ride.dur), re = ru*ru*(3 - 2*ru), rp = ride.path(re);
-      cen = rp.slice(); tgtCen = rp.slice(); zoom = tgtZoom = ride.zIn + (ride.zOut - ride.zIn)*Math.sin(Math.PI*ru);
-      if (!reduced) yaw += dt*0.16;
-      if (ru >= 1) { ride.phase = 'orbit'; ride.t = 0; tgtCen = [ride.to.x, ride.to.y, ride.to.z]; tgtZoom = ride.zIn; }
-    } else if (ride.on && ride.phase === 'orbit') {
-      ride.t += dt; if (!reduced && idle) yaw += dt*0.14;
-      if (ride.auto && !reduced && idle && ride.t > RIDE_HOLD) { ride.t = -99; setTimeout(rideNext, 0); }
-    }
     zoom += (tgtZoom - zoom)*k; for (var m = 0; m < 3; m++) cen[m] += (tgtCen[m] - cen[m])*k;
     fade = Math.min(1, fade + dt/FADE_S);
-    cyw = Math.cos(yaw); syw = Math.sin(yaw); cp = Math.cos(pitch); sp = Math.sin(pitch);
+    if (intro.on) {                                                                  // the intro: start outside the head, fly in through it
+      intro.t += dt*(intro.fast ? 3.5 : 1); var iu = Math.min(1, intro.t/intro.T), ie = iu*iu*iu*(iu*(iu*6 - 15) + 10); intro.u = iu;
+      zoom = tgtZoom = 0.48 + 0.52*ie; fade = Math.min(1, 0.22 + 0.78*Math.max(0, Math.min(1, (iu - 0.12)/0.6)));
+      if (iu >= 1) { intro.on = false; zoom = tgtZoom = 1; fade = 1; showReset(); }
+    }
+    cyw = Math.cos(yaw); syw = Math.sin(yaw); cp = Math.cos(pitch); sp = Math.sin(pitch); zoomB = zoom*(reduced ? 1 : 1 + 0.012*Math.sin(t*0.35));
     if (reduced || !dt) return;
     acc += dt*rate; while (acc >= 1) { acc -= 1; var ei = pickEdge(R), ed = edges[ei]; if (!ed) break; firePulse(ei, ed.a.hub ? ed.a : ed.b.hub ? ed.b : (R() < 0.5 ? ed.a : ed.b), 0); }
-    beat += dt; if (beat > 2.6 && hub.adj.length) { beat = 0; hub.fire = 1; hub.adj.forEach(function(e){ if (R() < 0.7) firePulse(e, hub, 0); }); }   // the desk's heartbeat
+    wave += dt; beat += dt; if (beat > 2.6 && hub.adj.length) { beat = 0; wave = 0; hub.fire = 1; hub.adj.forEach(function(e){ if (R() < 0.7) firePulse(e, hub, 0); }); }   // the desk's heartbeat
     for (var q = pulses.length - 1; q >= 0; q--) { var pl = pulses[q]; pl.u += dt*pl.sp;
       if (pl.u >= 1) { var e2 = edges[pl.e], tg = e2.a === pl.from ? e2.b : e2.a; tg.fire = 1; pulses.splice(q, 1);
         var go = tg.hub ? 0.85 : 0.18 + 0.12*Math.min(3, tg.active) + (tg.gold ? 0.25 : 0);
@@ -891,25 +848,27 @@ var Field = (function(){
     nodes.forEach(function(nd){                                                      // a soft glow on each neuron
       var dim = foc && nd !== foc ? 0.3 : 1, r = nd.sr*(nd.flags.length ? 4.2 : 3.2), al = (nd.flags.length ? 0.16 + 0.04*Math.min(4, nd.flags.length) : 0.11)*nd.dep*fade*dim;
       ctx.globalAlpha = al; ctx.drawImage(SPR[nd.gold ? 2 : ci(nd.col)], nd.sx - r, nd.sy - r, r*2, r*2); });
+    nodes.forEach(function(nd){                                                      // the nucleus: a hot core in every neuron, swelling when it fires
+      var dim = foc && nd !== foc ? 0.3 : 1, rc = Math.max(1.6, nd.sr*(0.55 + 0.5*nd.fire)), ac = (0.32 + 0.22*Math.min(4, nd.active)/4 + 0.45*nd.fire)*nd.dep*fade*dim;
+      ctx.globalAlpha = Math.min(1, ac); ctx.drawImage(SPR[nd.gold ? 2 : ci(nd.col)], nd.sx - rc*1.6, nd.sy - rc*1.6, rc*3.2, rc*3.2);
+      ctx.globalAlpha = Math.min(1, ac*0.9); ctx.drawImage(SPR[4], nd.sx - rc*0.7, nd.sy - rc*0.7, rc*1.4, rc*1.4); });
+    ctx.globalAlpha = 1;
     var br = (0.14 + (reduced ? 0 : 0.05*Math.sin(t*1.3)) + 0.35*hub.fire)*fade, hr = SC*zoom*hp[2]*(0.16 + 0.05*hub.fire);
     ctx.globalAlpha = br; ctx.drawImage(SPR[4], hp[0] - hr, hp[1] - hr, hr*2, hr*2); ctx.globalAlpha = 1;
+    if (wave < 1.6 && !reduced) { var wu = wave/1.6, wr = SC*zoomB*hp[2]*(0.04 + 0.95*wu);                                   // the desk's heartbeat: a ring that runs out through the brain
+      ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(214,226,255,' + (0.3*(1 - wu)*(1 - wu)*(1 - wu)*fade).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(hp[0], hp[1], wr, 0, 6.283); ctx.stroke(); }
     var lw0 = small ? 0.65 : 0.75;
     edges.forEach(function(e){                                                       // the wiring
       var on = !foc || e.a === foc || e.b === foc, hot = Math.max(e.a.fire || 0, e.b.fire || 0), c3 = synColor(e.a.hub ? e.b : e.a), d0 = proj(e.pts[6][0], e.pts[6][1], e.pts[6][2]);
       var dd0 = depth(d0[3]); ctx.lineWidth = lw0*(0.5 + 0.8*dd0); ctx.strokeStyle = 'rgba(' + c3.join(',') + ',' + ((on ? 0.09 + 0.28*hot : 0.02)*dd0*fade).toFixed(3) + ')'; ctx.beginPath();
-      for (var k2 = 0; k2 < e.pts.length; k2++) { var q2 = proj(e.pts[k2][0], e.pts[k2][1], e.pts[k2][2]); if (k2) ctx.lineTo(q2[0], q2[1]); else ctx.moveTo(q2[0], q2[1]); } ctx.stroke(); });
-    ctx.globalCompositeOperation = 'source-over';                                    // the planets: a lit sphere at each core, far ones first
-    nodes.slice().sort(function(p, q){ return q.ps - p.ps; }).forEach(function(nd){
-      var dim = foc && nd !== foc ? 0.45 : 1, rr = Math.max(2, Math.min(nd.sr*(nd.flags.length ? 0.42 : 0.36), Math.max(8, 6*zoom))), si = nd.gold ? 2 : ci(nd.col);
-      ctx.globalAlpha = Math.min(1, (0.5 + 0.45*nd.dep))*0.92*fade*dim; ctx.drawImage(SPH[si], nd.sx - rr, nd.sy - rr, rr*2, rr*2);
-      if (nd.gold) { ctx.globalAlpha = 0.55*fade*dim*nd.dep; ctx.strokeStyle = 'rgba(240,196,96,.9)'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.ellipse(nd.sx, nd.sy, rr*2.5, rr*0.8, -0.45, 0, 6.283); ctx.stroke(); } });
-    var hr0 = Math.max(2.5, SC*zoom*hp[2]*0.024); ctx.globalAlpha = fade; ctx.drawImage(SPH[4], hp[0] - hr0, hp[1] - hr0, hr0*2, hr0*2); ctx.globalAlpha = 1;   // the desk's core
-    ctx.globalCompositeOperation = 'lighter';
+      for (var k2 = 0; k2 < e.pts.length; k2++) { var q2 = proj(e.pts[k2][0], e.pts[k2][1], e.pts[k2][2]); if (k2) ctx.lineTo(q2[0], q2[1]); else ctx.moveTo(q2[0], q2[1]); } ctx.stroke();
+      if (on && hot > 0.04) { ctx.lineWidth = lw0*4.5*(0.5 + 0.8*dd0); ctx.strokeStyle = 'rgba(' + c3.join(',') + ',' + (0.13*hot*dd0*fade).toFixed(3) + ')'; ctx.stroke(); } });   // a wire lights up as a signal runs it
     pulses.forEach(function(pl){                                                     // impulses: a bright head with a short tail
       var e = edges[pl.e], fwd = e.a === pl.from, c4 = pl.col, on = !foc || e.a === foc || e.b === foc;
-      for (var j2 = 5; j2 >= 0; j2--) { var u = pl.u - j2*0.035; if (u < 0) continue; var w3 = curve(e, fwd, u), p3 = proj(w3[0], w3[1], w3[2]), al3 = (on ? 1 : 0.25)*fade*depth(p3[3])*(1 - j2/6);
-        ctx.fillStyle = 'rgba(' + c4.join(',') + ',' + (0.9*al3).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(p3[0], p3[1], (j2 ? 1.5 - j2*0.18 : 2.1)*Math.max(0.7, p3[2]), 0, 6.283); ctx.fill(); }
-      var hw = curve(e, fwd, pl.u), hp2 = proj(hw[0], hw[1], hw[2]); ctx.globalAlpha = 0.5*fade*depth(hp2[3]); var hs = 8*Math.max(0.7, Math.min(1.6, hp2[2])); ctx.drawImage(SPR[ci(c4) === 3 ? 4 : ci(c4)], hp2[0] - hs, hp2[1] - hs, hs*2, hs*2); ctx.globalAlpha = 1; });
+      for (var j2 = 8; j2 >= 0; j2--) { var u = pl.u - j2*0.03; if (u < 0) continue; var w3 = curve(e, fwd, u), p3 = proj(w3[0], w3[1], w3[2]), al3 = (on ? 1 : 0.25)*fade*depth(p3[3])*(1 - j2/9);
+        ctx.fillStyle = 'rgba(' + c4.join(',') + ',' + (0.9*al3).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(p3[0], p3[1], (j2 ? 1.6 - j2*0.14 : 2.2)*Math.max(0.7, p3[2]), 0, 6.283); ctx.fill(); }
+      var hw = curve(e, fwd, pl.u), hp2 = proj(hw[0], hw[1], hw[2]); ctx.globalAlpha = 0.5*fade*depth(hp2[3]); var hs = 8*Math.max(0.7, Math.min(1.6, hp2[2])); ctx.drawImage(SPR[ci(c4) === 3 ? 4 : ci(c4)], hp2[0] - hs, hp2[1] - hs, hs*2, hs*2); ctx.globalAlpha = 1;
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.85*fade*depth(hp2[3])*(on ? 1 : 0.25)).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(hp2[0], hp2[1], 1.1*Math.max(0.7, hp2[2]), 0, 6.283); ctx.fill(); });   // a white-hot head
     sparks.forEach(function(sk){                                                     // the desk's reviews
       var f2 = Math.sin(Math.PI*Math.min(1, sk.age/sk.life)), p4 = proj(sk.p[0], sk.p[1], sk.p[2]), q4 = proj(sk.q[0], sk.q[1], sk.q[2]), dm = foc && sk.nd !== foc ? 0.25 : 1;
       ctx.strokeStyle = 'rgba(' + sk.col.join(',') + ',' + (sk.a*f2*depth(p4[3])*fade*dm).toFixed(3) + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p4[0], p4[1]); ctx.lineTo(q4[0], q4[1]); ctx.stroke(); });
@@ -917,7 +876,67 @@ var Field = (function(){
       var fi = nd.fire; if (fi <= 0.01) return; if (foc && nd !== foc) fi *= 0.3; var c5 = synColor(nd), r5 = 9 + 16*fi;
       ctx.globalAlpha = 0.65*fi*fade*nd.dep; ctx.drawImage(SPR[nd.gold ? 2 : ci(nd.col) === 3 ? 5 : ci(nd.col)], nd.sx - r5, nd.sy - r5, r5*2, r5*2); ctx.globalAlpha = 1;
       ctx.strokeStyle = 'rgba(' + c5.join(',') + ',' + (0.45*fi*fade*nd.dep).toFixed(3) + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(nd.sx, nd.sy, 4 + 24*(1 - fi), 0, 6.283); ctx.stroke(); });
-    ctx2.setTransform(dpr2, 0, 0, dpr2, 0, 0); ctx2.clearRect(0, 0, W, H); ctx2.globalAlpha = fade; labels(ctx2); ctx2.globalAlpha = 1;   // names, logos and numbers on the crisp layer
+    if (intro.on) drawHead(hp);
+    ctx2.setTransform(dpr2, 0, 0, dpr2, 0, 0); ctx2.clearRect(0, 0, W, H); ctx2.globalAlpha = fade*(intro.on ? Math.max(0, Math.min(1, (intro.u - 0.55)/0.35)) : 1); labels(ctx2); ctx2.globalAlpha = 1;   // names, logos and numbers on the crisp layer; they wait for the fly-in
+  }
+  /* The intro: a translucent robotic head in profile around the brain, with a 3D skull cage that turns with it. Decoration
+     only. The camera starts outside the head and flies in through the temple while the head fades and the neurons come up. */
+  function smooth(pts, closed){                                                      // a Catmull-Rom spline through the points, as a Path2D
+    var P = new Path2D(), n = pts.length; P.moveTo(pts[0][0], pts[0][1]);
+    for (var i = 0; i < (closed ? n : n - 1); i++) { var p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+      if (!closed) { if (i === 0) p0 = p1; if (i >= n - 2) p3 = p2; }
+      P.bezierCurveTo(p1[0] + (p2[0] - p0[0])/6, p1[1] + (p2[1] - p0[1])/6, p2[0] - (p3[0] - p1[0])/6, p2[1] - (p3[1] - p1[1])/6, p2[0], p2[1]); }
+    if (closed) P.closePath(); return P;
+  }
+  function poly(segs){ var P = new Path2D(); segs.forEach(function(s){ s.forEach(function(q, i){ if (i) P.lineTo(q[0], q[1]); else P.moveTo(q[0], q[1]); }); }); return P; }
+  function buildHead(){                                                              // in brain units: the cranium is centred on the desk, the face points left
+    if (typeof Path2D === 'undefined') return null;
+    var shell = smooth([[-0.95, -0.75], [-0.55, -1.12], [0, -1.27], [0.55, -1.16], [1.0, -0.82], [1.25, -0.25], [1.2, 0.35], [0.98, 0.85], [0.8, 1.15], [0.76, 1.6], [0.78, 2.05], [0.78, 2.35],
+                        [-0.02, 2.35], [-0.08, 1.98], [-0.35, 1.78], [-0.7, 1.64], [-0.86, 1.46], [-0.86, 1.28], [-0.98, 1.13], [-0.92, 0.98], [-1.3, 0.72], [-1.2, 0.45], [-1.05, 0.2], [-1.1, -0.03], [-1.06, -0.35]], true);
+    var seams = new Path2D();
+    [smooth([[-1.02, -0.3], [-0.75, -0.28], [-0.5, -0.05], [-0.52, 0.45], [-0.62, 0.95], [-0.42, 1.45], [-0.1, 1.72]], false),      // the faceplate
+     smooth([[0.38, 0.95], [0.05, 1.25], [-0.35, 1.5], [-0.68, 1.6]], false),                                                       // the jaw
+     smooth([[-0.88, -0.78], [-0.45, -1.0], [0.02, -1.13], [0.5, -1.03], [0.9, -0.72], [1.1, -0.25], [1.06, 0.3]], false),           // the cranium plate
+     poly([[[0.1, -1.15], [0.14, -0.98]], [[0.62, -1.05], [0.66, -0.88]], [[-0.3, -0.3], [-0.3, 0.55]], [[-0.1, -0.95], [-0.1, -0.5]]]),   // short seams
+     poly([[[0.14, 1.3], [0.14, 2.32]], [[0.36, 1.22], [0.36, 2.32]], [[0.58, 1.18], [0.58, 2.32]]])]                                  // neck cables
+    .forEach(function(q){ seams.addPath(q); });
+    var fit = new Path2D(); [0.27, 0.18, 0.07].forEach(function(r){ fit.moveTo(0.55 + r, 0.3); fit.arc(0.55, 0.3, r, 0, 6.283); });   // the ear module
+    fit.moveTo(0.46, 0.95); fit.arc(0.38, 0.95, 0.08, 0, 6.283);                                                                        // the jaw hinge
+    fit.moveTo(0.78, 2.12); fit.ellipse(0.38, 2.12, 0.4, 0.07, 0, 0, 6.283);                                                            // the collar
+    [1.42, 1.66, 1.9].forEach(function(y){ fit.rect(0.66, y, 0.1, 0.14); });                                                            // vertebrae
+    var lens = new Path2D(); lens.ellipse(-0.78, 0.04, 0.25, 0.11, -0.08, 0, 6.283);
+    var traces = poly([[[0.14, 1.5], [0.14, 1.1], [-0.05, 0.95], [-0.05, 0.55]], [[0.36, 1.3], [0.36, 1.0], [0.75, 0.75], [0.75, 0.5]], [[0.58, 1.3], [0.95, 1.0], [0.95, 0.55]],
+                       [[0.55, 0.03], [0.55, -0.45], [0.3, -0.7]], [[0.82, 0.3], [1.05, 0.05], [1.05, -0.3]], [[-0.55, -0.1], [-0.55, -0.6], [-0.3, -0.85]], [[-0.62, 1.3], [-0.4, 1.1], [-0.4, 0.7]]]);
+    var dots = [[-0.05, 0.55], [0.75, 0.5], [0.95, 0.55], [0.3, -0.7], [1.05, -0.3], [-0.3, -0.85], [-0.4, 0.7], [0.14, -0.98], [0.66, -0.88], [-0.3, 0.55]];
+    var cage = []; for (var r = 0; r < 7; r++) { var ring = []; for (var k = 0; k <= 36; k++) { var a = k/36*6.2832, RR = 1.12;
+      if (r < 3) { var yy = (r - 1)*0.55, rr = Math.sqrt(RR*RR - yy*yy); ring.push([Math.cos(a)*rr, yy, Math.sin(a)*rr]); }
+      else { var th = (r - 3)*Math.PI/4, cx = Math.cos(a)*RR, cy = Math.sin(a)*RR; ring.push([cx*Math.cos(th), cy, cx*Math.sin(th)]); } }
+      cage.push(ring); }
+    return {shell: shell, seams: seams, fit: fit, lens: lens, traces: traces, dots: dots, cage: cage};
+  }
+  function drawHead(hp){
+    if (!HEAD) HEAD = buildHead(); if (!HEAD) return;
+    var u = intro.u, ha = Math.min(1, u/0.1)*(u < 0.5 ? 1 : Math.max(0, 1 - (u - 0.5)/0.42)), ca = Math.min(1, u/0.15)*Math.max(0, 1 - Math.max(0, u - 0.4)/0.45);
+    if (ha <= 0.005 && ca <= 0.005) return;
+    var s = SC*zoomB*hp[2], px = 1/s;                                                  // px: one screen pixel in head units
+    ctx.globalCompositeOperation = 'lighter';
+    if (ca > 0.005) {                                                                // the skull cage, in 3D, so it turns with the brain
+      ctx.lineWidth = 0.7; ctx.strokeStyle = 'rgba(140,170,240,' + (0.22*ca).toFixed(3) + ')'; ctx.beginPath();
+      HEAD.cage.forEach(function(ring){ ring.forEach(function(q, i){ var w = proj(q[0], q[1], q[2]); if (i) ctx.lineTo(w[0], w[1]); else ctx.moveTo(w[0], w[1]); }); }); ctx.stroke(); }
+    if (ha <= 0.005) return;
+    ctx.save(); ctx.translate(hp[0], hp[1]); ctx.scale(s, s); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    var g = ctx.createRadialGradient(0, 0.3, 0.3, 0, 0.3, 2.3); g.addColorStop(0, 'rgba(90,120,220,' + (0.09*ha).toFixed(3) + ')'); g.addColorStop(1, 'rgba(90,120,220,0)'); ctx.fillStyle = g; ctx.fill(HEAD.shell);   // translucent glass
+    ctx.lineWidth = 6*px; ctx.strokeStyle = 'rgba(120,160,255,' + (0.10*ha).toFixed(3) + ')'; ctx.stroke(HEAD.shell);                 // glow
+    ctx.lineWidth = 1.2*px; ctx.strokeStyle = 'rgba(205,220,255,' + (0.75*ha).toFixed(3) + ')'; ctx.stroke(HEAD.shell);
+    ctx.lineWidth = 0.9*px; ctx.strokeStyle = 'rgba(170,195,255,' + (0.42*ha).toFixed(3) + ')'; ctx.stroke(HEAD.seams); ctx.stroke(HEAD.fit);
+    ctx.lineWidth = 0.8*px; ctx.strokeStyle = 'rgba(120,220,235,' + (0.35*ha).toFixed(3) + ')'; ctx.stroke(HEAD.traces);
+    ctx.fillStyle = 'rgba(160,230,245,' + (0.8*ha).toFixed(3) + ')'; HEAD.dots.forEach(function(d){ ctx.beginPath(); ctx.arc(d[0], d[1], 2.2*px, 0, 6.283); ctx.fill(); });
+    var blink = u < 0.3 ? 0.5 + 0.5*Math.sin(u/0.3*Math.PI) : 1;                       // the eye wakes
+    ctx.lineWidth = 1*px; ctx.strokeStyle = 'rgba(200,235,255,' + (0.7*ha).toFixed(3) + ')'; ctx.stroke(HEAD.lens);
+    ctx.fillStyle = 'rgba(150,225,245,' + (0.25*ha*blink).toFixed(3) + ')'; ctx.fill(HEAD.lens);
+    ctx.globalAlpha = 0.9*ha*blink; ctx.drawImage(SPR[5], -0.8 - 0.22, 0.04 - 0.22, 0.44, 0.44); ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(240,250,255,' + (0.95*ha*blink).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(-0.8, 0.04, 0.045, 0, 6.283); ctx.fill();
+    ctx.restore();
   }
   function labels(ctx){
     ctx.globalCompositeOperation = 'source-over'; ctx.textAlign = 'left'; var mono = 'px JetBrains Mono, monospace';
@@ -965,26 +984,27 @@ var Field = (function(){
   function load(s, scene, focusSym){
     if (offScreen) { pending = [s, scene, focusSym]; return; }
     var sameSize = W === (cv.clientWidth || 600) && H === (cv.clientHeight || W), rebuild = !S || S.session !== s.session || S !== s || !sameSize;
-    if (rebuild) { if (!S || S.session !== s.session) fade = 0; S = s; size(); build(s); }
+    if (rebuild) { if (!S || S.session !== s.session) fade = 0; S = s; size(); build(s);
+      if (wantIntro && !reduced && !focusSym) { intro.on = true; intro.t = 0; intro.u = 0; intro.fast = false; zoom = tgtZoom = 0.48; fade = 0; } wantIntro = false; }
+    if (focusSym && intro.on) { intro.on = false; fade = 1; }
     S = s; sc = scene;
     foc = focusSym ? nodes.filter(function(nd){ return nd.row.symbol === focusSym; })[0] || null : null;
-    if (foc) { if (ride.on && foc !== ride.to) { var ri = ride.order.indexOf(foc); if (ri < 0) ride.on = false; else { ride.i = ri; ride.to = foc; ride.phase = 'orbit'; ride.t = 0; } }
-      if (!ride.on || ride.phase !== 'fly') { tgtCen = [foc.x, foc.y, foc.z]; tgtZoom = ride.on ? ride.zIn : 2.3; } }
-    else { tgtCen = [0, 0, 0]; if (tgtZoom > 2) tgtZoom = 1; ride.on = false; ride.auto = false; ride.phase = 'idle'; ride.i = -1; }
+    if (foc) { tgtCen = [foc.x, foc.y, foc.z]; tgtZoom = 2.3; } else { tgtCen = [0, 0, 0]; if (tgtZoom > 2) tgtZoom = 1; }
     showReset();
     if (raf) cancelAnimationFrame(raf); raf = null; last = 0;
     if (reduced) { zoom = tgtZoom; cen = tgtCen.slice(); fade = 1; frame(0); } else raf = requestAnimationFrame(loop);
   }
-  function showReset(){ $('zoomReset').hidden = !(!foc && Math.abs(tgtZoom - 1) > 0.02); rideUI(); }
+  function showReset(){ $('zoomReset').hidden = intro.on || !(foc || Math.abs(tgtZoom - 1) > 0.02); }
   function nodeAt(x, y){ var best = null, bd = 1e9; nodes.forEach(function(nd){ var d = Math.hypot(x - nd.sx, y - nd.sy) - nd.dep*4; if (Math.hypot(x - nd.sx, y - nd.sy) < Math.max(small ? 30 : 24, nd.sr*2.2) && d < bd) { bd = d; best = nd; } }); return best; }
   function pos(ev){ var rct = cv.getBoundingClientRect(), pt = ev.touches && ev.touches.length ? ev.touches[0] : (ev.changedTouches && ev.changedTouches.length ? ev.changedTouches[0] : ev); return [(pt.clientX - rct.left)*(W/rct.width), (pt.clientY - rct.top)*(H/rct.height)]; }
   function tp(tc){ var rct = cv.getBoundingClientRect(); return [(tc.clientX - rct.left)*(W/rct.width), (tc.clientY - rct.top)*(H/rct.height)]; }
   function turn(dx, dy){ yaw += dx*0.008; dragPitch = Math.max(-1.2, Math.min(1.0, dragPitch - dy*0.006)); lastTouch = Date.now(); if (reduced) frame(0); }
-  function resetView(){ tgtZoom = 1; dragPitch = 0; if (foc) setFocus(null); else { tgtCen = [0, 0, 0]; showReset(); if (reduced) { zoom = 1; cen = [0, 0, 0]; frame(0); } } }
-  function onClick(ev){ if (dragMoved) { dragMoved = false; return; } var xy = pos(ev), nd = nodeAt(xy[0], xy[1]); tip.hidden = true; if (nd) { if (ride.on && nd !== foc && ride.order.indexOf(nd) >= 0) rideTo(ride.order.indexOf(nd)); else setFocus(foc === nd ? null : nd.row.symbol); } else if (foc) setFocus(null); }
+  function resetView(){ if (intro.on) { intro.fast = true; return; } if (!foc && !reduced && Math.abs(tgtZoom - 1) < 0.02 && Math.abs(dragPitch) < 0.05) { intro.on = true; intro.t = 0; intro.u = 0; intro.fast = false; return; }   // on the full view, a double-tap replays the intro
+    tgtZoom = 1; dragPitch = 0; if (foc) setFocus(null); else { tgtCen = [0, 0, 0]; showReset(); if (reduced) { zoom = 1; cen = [0, 0, 0]; frame(0); } } }
+  function onClick(ev){ if (dragMoved) { dragMoved = false; return; } var xy = pos(ev), nd = nodeAt(xy[0], xy[1]); tip.hidden = true; if (nd) setFocus(foc === nd ? null : nd.row.symbol); else if (foc) setFocus(null); }
   cv.style.touchAction = 'none';
   cv.addEventListener('touchstart', function(ev){
-    lastTouch = Date.now();
+    lastTouch = Date.now(); if (intro.on) intro.fast = true;
     if (ev.touches.length === 2) { var a = tp(ev.touches[0]), b = tp(ev.touches[1]); gest = {mode: 'pinch', d: Math.hypot(a[0] - b[0], a[1] - b[1]), z: tgtZoom}; }
     else if (ev.touches.length === 1) { var p = tp(ev.touches[0]); gest = {mode: 'tap', x: p[0], y: p[1], sx: p[0], sy: p[1], moved: false, t0: Date.now()}; }
     ev.preventDefault();
@@ -1006,57 +1026,11 @@ var Field = (function(){
   }, {passive: false});
   cv.addEventListener('touchcancel', function(){ gest = null; });
   cv.addEventListener('wheel', function(ev){ tgtZoom = zoom = Math.max(0.7, Math.min(3.2, tgtZoom*Math.exp(-ev.deltaY*0.0015))); lastTouch = Date.now(); showReset(); if (reduced) frame(0); ev.preventDefault(); }, {passive: false});
-  cv.addEventListener('mousedown', function(ev){ if (ev.button !== 0) return; var p = pos(ev); gest = {mode: 'drag', x: p[0], y: p[1], sx: p[0], sy: p[1]}; dragMoved = false; });
+  cv.addEventListener('mousedown', function(ev){ if (ev.button !== 0) return; if (intro.on) intro.fast = true; var p = pos(ev); gest = {mode: 'drag', x: p[0], y: p[1], sx: p[0], sy: p[1]}; dragMoved = false; });
   window.addEventListener('mousemove', function(ev){ if (!gest || gest.mode !== 'drag') return; var p = pos(ev); if (!dragMoved && Math.hypot(p[0] - gest.sx, p[1] - gest.sy) < 4) return; dragMoved = true; turn(p[0] - gest.x, p[1] - gest.y); gest.x = p[0]; gest.y = p[1]; });
   window.addEventListener('mouseup', function(){ if (gest && gest.mode === 'drag') gest = null; });
   cv.addEventListener('dblclick', function(ev){ resetView(); ev.preventDefault(); });
   $('zoomReset').addEventListener('click', resetView);
-  /* the ride: a nearest-neighbour tour of the brain, flying along the wires from one planet to the next */
-  var PLAY_SVG = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>', PAUSE_SVG = '<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
-  function rideOrder(){
-    var left = nodes.slice(), out = []; if (!left.length) return out;
-    left.sort(function(p, q){ return (q.gold ? 100 : 0) + q.active - (p.gold ? 100 : 0) - p.active; });
-    var at = left.shift(); out.push(at);
-    while (left.length) { var bi = 0, bd = 1e9; left.forEach(function(o, i){ var d = Math.hypot(o.x - at.x, o.y - at.y, o.z - at.z) - (o.gold ? 0.2 : 0) - Math.min(0.12, o.active*0.03); if (d < bd) { bd = d; bi = i; } }); at = left.splice(bi, 1)[0]; out.push(at); }
-    return out;
-  }
-  function edgeBetween(p, q){ for (var i = 0; i < p.adj.length; i++) { var e = edges[p.adj[i]]; if ((e.a === p && e.b === q) || (e.a === q && e.b === p)) return e; } return null; }
-  function flightPath(p, q){                                                       // follow the wire when there is one, else swing out and around
-    var e = edgeBetween(p, q), a = [p.x, p.y, p.z], b = [q.x, q.y, q.z], c;
-    if (e) c = e.c.slice();
-    else { var mid = [(a[0] + b[0])/2, (a[1] + b[1])/2, (a[2] + b[2])/2], d = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), nm = Math.hypot(mid[0], mid[1], mid[2]) > 0.05 ? norm(mid) : [0, 1, 0]; c = [mid[0] + nm[0]*0.35*d, mid[1] + nm[1]*0.35*d, mid[2] + nm[2]*0.35*d]; }
-    return function(u){ var v = 1 - u; return [v*v*a[0] + 2*v*u*c[0] + u*u*b[0], v*v*a[1] + 2*v*u*c[1] + u*u*b[1], v*v*a[2] + 2*v*u*c[2] + u*u*b[2]]; };
-  }
-  function rideTo(i, auto){
-    if (!ride.order.length) ride.order = rideOrder(); if (!ride.order.length) return;
-    i = (i + ride.order.length) % ride.order.length;
-    var from = ride.on && ride.to ? ride.to : (foc || hub), to = ride.order[i];
-    ride.on = true; ride.i = i; ride.t = 0; ride.from = from; ride.to = to; if (auto != null) ride.auto = auto;
-    if (from === to || reduced) { ride.phase = 'orbit'; }
-    else { ride.phase = 'fly'; ride.path = flightPath(from, to); ride.dur = Math.min(3.4, 1.4 + Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z)*2.4); }
-    if (foc !== to) setFocus(to.row.symbol); else { tgtCen = [to.x, to.y, to.z]; tgtZoom = ride.zIn; showReset(); }
-    if (reduced) { zoom = tgtZoom = ride.zIn; cen = tgtCen = [to.x, to.y, to.z]; frame(0); }
-  }
-  function rideIndex(){ if (!ride.order.length) ride.order = rideOrder(); return ride.on ? ride.i : (foc ? ride.order.indexOf(foc) : -1); }
-  function rideNext(){ if (!nodes.length) return; rideTo(rideIndex() + 1); }
-  function ridePrev(){ if (!nodes.length) return; rideTo(rideIndex() - 1 + (rideIndex() < 0 ? 1 : 0)); }
-  function startRide(){ if (!nodes.length) return; ride.order = rideOrder(); var i = foc ? ride.order.indexOf(foc) : -1; rideTo(i < 0 ? 0 : i, true); }
-  function rideUI(){                                                               // the overlay: legend panel, or the planet card with the ride's controls
-    var fv = $('fov'); fv.classList.toggle('riding', ride.on); fv.classList.toggle('focus', !!foc && !ride.on);
-    var seg = $('fovSeg'); if (ride.on) { if (seg.childElementCount !== ride.order.length) { seg.innerHTML = ''; ride.order.forEach(function(){ seg.appendChild(document.createElement('span')); }); }
-      Array.prototype.forEach.call(seg.children, function(s2, i){ s2.className = i < ride.i ? 'done' : i === ride.i ? 'now' : ''; }); }
-    var pb = $('ridePlay'); pb.classList.toggle('gold', ride.on && ride.auto); pb.innerHTML = ride.on && ride.auto ? PAUSE_SVG : PLAY_SVG; pb.setAttribute('aria-label', ride.on && ride.auto ? 'pause the ride' : 'ride on automatically');
-    $('rideStatus').innerHTML = ride.on ? '<b>' + (ride.i + 1) + '</b> of ' + ride.order.length + (ride.auto ? (reduced ? ' · step with the arrows' : ' · riding') : ' · paused') : (foc ? 'press play to ride on' : '');
-    if (foc) planetCard(foc);
-  }
-  $('rideBtn').addEventListener('click', startRide); $('ridePrev').addEventListener('click', ridePrev); $('rideNext').addEventListener('click', rideNext);
-  $('ridePlay').addEventListener('click', function(){ if (!ride.on) startRide(); else { ride.auto = !ride.auto; ride.t = 0; rideUI(); } });
-  $('rideExit').addEventListener('click', function(){ ride.on = false; ride.auto = false; ride.phase = 'idle'; ride.i = -1; resetView(); });
-  $('planetLines').addEventListener('click', function(ev){ var go = ev.target && ev.target.getAttribute && ev.target.getAttribute('data-go'); if (go) setScreen(go); });
-  (function(){ var sx = null, sy = null, pl = $('planet');
-    pl.addEventListener('touchstart', function(ev){ if (ev.touches.length === 1) { sx = ev.touches[0].clientX; sy = ev.touches[0].clientY; } }, {passive: true});
-    pl.addEventListener('touchend', function(ev){ if (sx == null || !ev.changedTouches.length) return; var dx = ev.changedTouches[0].clientX - sx, dy = ev.changedTouches[0].clientY - sy; sx = null;
-      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)*1.5) { if (dx < 0) rideNext(); else ridePrev(); } }, {passive: true}); })();
   function onMove(ev){
     if (gest && gest.mode === 'drag') return;
     var xy = pos(ev), nd = nodeAt(xy[0], xy[1]);
@@ -1077,8 +1051,8 @@ var Field = (function(){
   $('fsBtn').addEventListener('click', function(){ var st = $('stage'); if (document.fullscreenElement) { if (document.exitFullscreen) document.exitFullscreen(); } else if (st.requestFullscreen) { st.requestFullscreen().catch(function(){}); } });
   document.addEventListener('fullscreenchange', function(){ setTimeout(function(){ if (S) { W = 0; load(S, sc, foc ? foc.row.symbol : null); } }, 200); });
   function setVisible(v){
-    if (!v) { if (!offScreen) { offScreen = true; if (raf) cancelAnimationFrame(raf); raf = null; if (ride.on && ride.auto) { ride.auto = false; rideUI(); } } return; }
-    if (!offScreen) return; offScreen = false; W = 0;
+    if (!v) { if (!offScreen) { offScreen = true; if (raf) cancelAnimationFrame(raf); raf = null; } return; }
+    if (!offScreen) return; offScreen = false; W = 0; wantIntro = true;
     var args = pending || (S ? [S, sc, foc ? foc.row.symbol : null] : null); pending = null; if (args) load(args[0], args[1], args[2]);
   }
   function refit(){ if (S && !offScreen && (W !== (cv.clientWidth || 600) || H !== (cv.clientHeight || W))) { W = 0; load(S, sc, foc ? foc.row.symbol : null); } }
