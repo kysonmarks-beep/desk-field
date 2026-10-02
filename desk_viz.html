@@ -25,6 +25,11 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+button,summary,.card,.sess,.chip{touch-action:manipulation}
+.navbar,.tabs,.ranges,.chart,.stage,.tvchips,.tickers{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.ptr{display:none;position:absolute;left:50%;top:calc(8px + env(safe-area-inset-top,0px));transform:translate(-50%,-48px);font-size:11px;font-weight:600;color:var(--ink);background:var(--panel-3);border:1px solid var(--line-2);border-radius:999px;padding:6px 12px;z-index:25;opacity:0;transition:transform .15s,opacity .15s;pointer-events:none;white-space:nowrap}
+.ptr.on{opacity:1}
+.pnlk .mini{display:inline-flex;align-items:center;margin-left:8px;padding:2px 8px;border-radius:999px;border:1px solid var(--line-2);background:transparent;color:var(--ink-2);font:inherit;font-size:11px;font-weight:600;cursor:pointer;vertical-align:1px}
 html,body{background:var(--bg)}
 body{margin:0;color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.45;padding-block:0 40px;padding-inline:16px;padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 .wrap{max-width:1100px;margin:0 auto;min-width:0}
@@ -214,7 +219,8 @@ h4{margin:0 0 8px;font-size:11px;color:var(--ink-3);font-weight:500}
   body[data-screen="today"] [data-s]:not([data-s~="today"]),body[data-screen="field"] [data-s]:not([data-s~="field"]),body[data-screen="charts"] [data-s]:not([data-s~="charts"]),body[data-screen="trades"] [data-s]:not([data-s~="trades"]),body[data-screen="signals"] [data-s]:not([data-s~="signals"]),body[data-screen="history"] [data-s]:not([data-s~="history"]){display:none}
   body[data-screen="trades"] #dTickets .card .more,body[data-screen="trades"] #dTickets .card .occ.full{display:block} body[data-screen="trades"] #dTickets .card .occ.brief,body[data-screen="trades"] #dTickets .card .t::after{display:none}
   .sections{margin-top:12px} .bar{grid-template-columns:118px 1fr 58px} .bar .v{white-space:nowrap} .two{grid-template-columns:1fr}
-  .top{padding:12px 0 8px;align-items:center} .brand{font-size:20px;min-width:0;flex:1} .brand small{font-size:12px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .tabs{flex-wrap:nowrap;flex:0 0 auto} .tabs button{padding:5px 9px;font-size:12px}
+  .top{padding:12px 0 8px;align-items:center} .brand{font-size:20px;min-width:0;flex:1} .brand small{font-size:12px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .tabs{flex-wrap:nowrap;flex:0 1 auto;max-width:62%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none} .tabs::-webkit-scrollbar{display:none} .tabs button{flex:0 0 auto;padding:7px 10px;font-size:12px}
+  .ptr{display:block}
   .hero{padding:10px 0 8px;gap:8px;border-top:0} .hero .pnl{font-size:clamp(38px,11vw,46px)}
   .hero .facts{display:block;margin-top:2px} .hero .fact{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)} .hero .fact:last-child{border-bottom:0} .hero .fact .s{display:none} .hero .fact .k{font-size:14px;font-weight:500;color:var(--ink)} .hero .fact .v{font-size:15px;font-family:var(--sans);font-weight:600;margin:0} .hero .limit{margin:0;width:110px} .hero .limit span{display:none}
   .hero .fact:nth-child(5){display:none} .hero.focus .fact:nth-child(5){display:flex}
@@ -313,6 +319,7 @@ h4{margin:0 0 8px;font-size:11px;color:var(--ink-3);font-weight:500}
   <details class="foot" data-s="history"><summary>How to read this page</summary><div class="body" id="foot"></div></details>
 </div>
 <nav class="navbar" id="bar" aria-label="screens"></nav>
+<div class="ptr" id="ptr" aria-hidden="true">pull to refresh</div>
 
 <script id="deskData" type="application/json">__DESK_DATA__</script>
 <script>
@@ -336,7 +343,12 @@ function applyScreen(){
   Field.setVisible(!isPhone() || screen === 'field'); Field.refit();   // the canvas changes size when the field goes full screen
   if (screen === 'charts') TV.ensure();
 }
-function setScreen(sc){ if (sc === screen) return; screen = sc; setHash(); applyScreen(); var w = document.querySelector('.wrap'); if (w) w.scrollTop = 0; window.scrollTo(0, 0); }
+var scrollMem = {};                                                              // each screen keeps its scroll position; tapping the active tab scrolls to the top
+function setScreen(sc){
+  var w = document.querySelector('.wrap');
+  if (sc === screen) { if (w) { try { w.scrollTo({top: 0, behavior: reduced ? 'auto' : 'smooth'}); } catch (e) { w.scrollTop = 0; } } return; }
+  if (w) scrollMem[screen] = w.scrollTop; screen = sc; setHash(); applyScreen(); if (w) w.scrollTop = scrollMem[sc] || 0; window.scrollTo(0, 0);
+}
 window.addEventListener('resize', function(){ applyScreen(); });
 var Chart = (function(){
   var RANGES = [['1D', 1], ['1W', 7], ['1M', 30], ['3M', 90], ['YTD', 'ytd'], ['1Y', 365], ['ALL', 'all']], range = '1D', pts = [], base = 0, S0 = null, mode = 'equity';
@@ -500,7 +512,8 @@ function render(){
   $('brandSub').textContent = ph ? cur + ageText() : 'paper options desk v2 · ' + cur + ' · built ' + (DATA.generated_at||'').slice(11,16) + ' PT' + ageText(); $('f4k').textContent = ph ? 'loss limit' : 'daily loss limit'; $('hero').className = 'hero' + (focus ? ' focus' : ''); $('focusbar').className = 'focusbar' + (focus ? ' on' : '');
   // hero
   Chart.render(S);
-  $('pnlk').textContent = focus ? focus + ' · P&L today' : 'Paper account';
+  $('pnlk').innerHTML = focus ? esc(focus) + ' · P&L today <button type="button" class="mini" id="clearFocusHero">× all names</button>' : 'Paper account';
+  if (focus) $('clearFocusHero').addEventListener('click', function(){ setFocus(null); });
   if (focus) {
     var okf = S.flags.filter(function(x){return x.status==='ok';});
     $('f1k').textContent = 'signals on '+focus; $('f1v').textContent = S.flags.length; $('f1v').className='v'; $('f1s').textContent = okf.length ? 'avg '+xr(mean(okf.map(function(x){return x.r;})))+' · '+okf.map(function(x){return flagW(x.flag);}).join(', ') : 'nothing to score';
@@ -663,6 +676,7 @@ function renderSessions(){
     b.addEventListener('click', function(){ cur=k; render(); window.scrollTo({top:0,behavior:'smooth'}); }); box.appendChild(b);
     var tb = el('button', null, k.slice(5)); tb.type='button'; tb.setAttribute('aria-pressed', k===cur); tb.addEventListener('click', function(){ cur=k; render(); }); tabs.appendChild(tb);
   });
+  var on = tabs.querySelector('[aria-pressed="true"]'); if (on && tabs.scrollWidth > tabs.clientWidth) tabs.scrollLeft = Math.max(0, on.offsetLeft - tabs.clientWidth/2 + on.offsetWidth/2);
 }
 function spark(marks, entry){
   if(!marks || marks.length<2) return '';
@@ -723,7 +737,7 @@ var Field = (function(){
   var hub = {hub: true, x: 0, y: 0, z: 0, fire: 0, adj: [], active: 3, gold: false, flags: [], tickets: []};
   var yaw = 0.7, pitch = 0.32, dragPitch = 0, zoom = 1, tgtZoom = 1, cen = [0, 0, 0], tgtCen = [0, 0, 0], fade = 1, lastTouch = 0, gest = null, lastTap = 0, dragMoved = false;
   var cyw = 1, syw = 0, cp = 1, sp = 0, DCAM = 2.8, FADE_S = 1.2, CY = 0;
-  var zoomB = 1, wave = 9, intro = {on: false, t: 0, T: 3.4, u: 0, fast: false}, wantIntro = true, HEAD = null, Z0 = 0.42;   // breathing zoom, the desk's heartbeat wave, the intro
+  var zoomB = 1, wave = 9, intro = {on: false, t: 0, T: 3.4, u: 0, fast: false}, wantIntro = true, lastIntroAt = 0, HEAD = null, Z0 = 0.42;   // breathing zoom, the desk's heartbeat wave, the intro
   var COLS = [[118, 162, 255], [226, 96, 206], [240, 196, 96], [150, 160, 200], [236, 240, 255], [120, 220, 235]];
   var ARM = {long: COLS[0], short: COLS[1]}, GOLD = COLS[2], DIM = COLS[3], WHITE = COLS[4], CYAN = COLS[5], LV = 8;
   var FILL = COLS.map(function(c){ var o = []; for (var k = 0; k < LV; k++) o.push('rgba(' + c.join(',') + ',' + ((k + 0.5)/LV*0.95).toFixed(3) + ')'); return o; });
@@ -853,7 +867,7 @@ var Field = (function(){
     if (intro.on) {                                                                  // the intro: start outside the head, fly in through it
       intro.t += dt*(intro.fast ? 3.5 : 1); var iu = Math.min(1, intro.t/intro.T), ie = iu*iu*iu*(iu*(iu*6 - 15) + 10); intro.u = iu;
       zoom = tgtZoom = Z0 + (1 - Z0)*ie; fade = Math.min(1, 0.22 + 0.78*Math.max(0, Math.min(1, (iu - 0.12)/0.6)));
-      if (iu >= 1) { intro.on = false; zoom = tgtZoom = 1; fade = 1; showReset(); }
+      if (iu >= 1) { intro.on = false; zoom = tgtZoom = 1; fade = 1; lastIntroAt = Date.now(); showReset(); }
     }
     cyw = Math.cos(yaw); syw = Math.sin(yaw); cp = Math.cos(pitch); sp = Math.sin(pitch); zoomB = zoom*(reduced ? 1 : 1 + 0.012*Math.sin(t*0.35));
     if (reduced || !dt) return;
@@ -1053,8 +1067,8 @@ var Field = (function(){
     if (offScreen) { pending = [s, scene, focusSym]; return; }
     var sameSize = W === (cv.clientWidth || 600) && H === (cv.clientHeight || W), rebuild = !S || S.session !== s.session || S !== s || !sameSize;
     if (rebuild) { if (!S || S.session !== s.session) fade = 0; S = s; size(); build(s);
-      if (wantIntro && !reduced && !focusSym) { intro.on = true; intro.t = 0; intro.u = 0; intro.fast = false; zoom = tgtZoom = Z0; fade = 0; } wantIntro = false; }
-    if (focusSym && intro.on) { intro.on = false; fade = 1; }
+      if (wantIntro && !reduced && !focusSym && Date.now() - lastIntroAt > 120000) { intro.on = true; intro.t = 0; intro.u = 0; intro.fast = false; zoom = tgtZoom = Z0; fade = 0; } wantIntro = false; }
+    if (focusSym && intro.on) { intro.on = false; fade = 1; lastIntroAt = Date.now(); }
     S = s; sc = scene;
     foc = focusSym ? nodes.filter(function(nd){ return nd.row.symbol === focusSym; })[0] || null : null;
     if (foc) { tgtCen = [foc.x, foc.y, foc.z]; tgtZoom = 2.3; } else { tgtCen = [0, 0, 0]; if (tgtZoom > 2) tgtZoom = 1; }
@@ -1134,6 +1148,17 @@ var Field = (function(){
     var screens = SCREENS.map(function(s){return s[0];});
     parts.forEach(function(p){ if (screens.indexOf(p) >= 0) screen = p; else if (names.indexOf(p) >= 0) scene = p; else if (sessions[cur] && sessions[cur].rows.some(function(rw){return rw.symbol===p.toUpperCase();})) focus = p.toUpperCase(); }); }
   render(); applyScreen();
+  (function(){                                                                   // pull down from the top of a screen to reload
+    var w = document.querySelector('.wrap'), pill = $('ptr'); if (!w || !pill) return;
+    var y0 = null, x0 = null, pull = 0, armed = false, NEED = 72;
+    function skip(t){ return !!(t.closest && t.closest('.chart, .tvbox, .tickers, .tvchips, .rib, .tabs, .scroll')); }
+    w.addEventListener('touchstart', function(ev){ if (!isPhone() || ev.touches.length !== 1 || w.scrollTop > 0 || skip(ev.target)) { y0 = null; return; } y0 = ev.touches[0].clientY; x0 = ev.touches[0].clientX; pull = 0; armed = false; }, {passive: true});
+    w.addEventListener('touchmove', function(ev){ if (y0 == null) return; var dy = ev.touches[0].clientY - y0, dx = Math.abs(ev.touches[0].clientX - x0);
+      if (dy < 8 || dx > dy || w.scrollTop > 0) { if (pull) { pull = 0; pill.className = 'ptr'; pill.style.transform = ''; } return; }
+      pull = Math.min(NEED*1.4, dy*0.55); armed = pull >= NEED; pill.className = 'ptr on'; pill.textContent = armed ? 'release to refresh' : 'pull to refresh'; pill.style.transform = 'translate(-50%,' + (pull - 48) + 'px)'; }, {passive: true});
+    function end(){ if (y0 == null) return; y0 = null; var go = armed; pull = 0; armed = false; pill.className = 'ptr'; pill.style.transform = ''; if (go) { pill.className = 'ptr on'; pill.textContent = 'refreshing…'; pill.style.transform = 'translate(-50%,16px)'; setTimeout(reloadNow, 150); } }
+    w.addEventListener('touchend', end, {passive: true}); w.addEventListener('touchcancel', end, {passive: true});
+  })();
 })();
 })();
 </script>
