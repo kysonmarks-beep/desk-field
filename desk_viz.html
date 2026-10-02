@@ -353,7 +353,9 @@ var Chart = (function(){
       }, 0);
       out.push([frac(t), Math.round((offset + v)*100)/100, t]);
     });
-    if (S.book.open === 0 && S.entries.length && out[out.length-1][0] < 1) out.push([1, out[out.length-1][1], t1]);
+    var endX = 1, endT = t1;                                                       // carry the last value flat to the close, or to the build time while the session is still running
+    if (cur === DATA.session && (DATA.generated_at || '').slice(0, 10) === cur) { endX = frac(DATA.generated_at); endT = DATA.generated_at; }
+    if (S.entries.length && out[out.length-1][0] < endX) out.push([endX, out[out.length-1][1], endT, 1]);
     return out;
   }
   function spanSeries(days){                                                     // one point per session inside the window, account value at its close
@@ -377,7 +379,7 @@ var Chart = (function(){
     var last = pts[n-1][1], cls = last > base ? 'good' : last < base ? 'bad' : '';
     $('chart').className = 'chart ' + cls; $('ranges').className = 'ranges ' + cls;
     var rest = pts[n-1][0] < 0.999 ? '<line class="rest" x1="' + X(n-1).toFixed(2) + '" x2="' + W + '" y1="' + Y(last).toFixed(2) + '" y2="' + Y(last).toFixed(2) + '"/>' : '';
-    var nt = $('chartNote'); if (nt) nt.textContent = (range === '1D' && pts[n-1][0] < 0.999 && S0 && S0.book.open > 0) ? 'marked to ' + pts[n-1][2].slice(11, 16) + ' · dotted: no newer mark' : '';
+    var nt = $('chartNote'); if (nt) { var lp = pts[n-1]; nt.textContent = (range === '1D' && lp[3] && n > 1 && S0 && S0.book.open > 0) ? 'flat since the last mark at ' + pts[n-2][2].slice(11, 16) : ''; }
     svg.innerHTML = '<line class="base" x1="0" x2="' + W + '" y1="' + Y(base).toFixed(2) + '" y2="' + Y(base).toFixed(2) + '"/>'
       + '<path class="line" d="' + d + '"/>' + rest
       + '<line class="cur" id="curLine" x1="0" x2="0" y1="0" y2="' + H + '" style="display:none"/>'
@@ -686,7 +688,7 @@ var Field = (function(){
   var hub = {hub: true, x: 0, y: 0, z: 0, fire: 0, adj: [], active: 3, gold: false, flags: [], tickets: []};
   var yaw = 0.7, pitch = 0.32, dragPitch = 0, zoom = 1, tgtZoom = 1, cen = [0, 0, 0], tgtCen = [0, 0, 0], fade = 1, lastTouch = 0, gest = null, lastTap = 0, dragMoved = false;
   var cyw = 1, syw = 0, cp = 1, sp = 0, DCAM = 2.8, FADE_S = 1.2, CY = 0;
-  var zoomB = 1, wave = 9, intro = {on: false, t: 0, T: 3.2, u: 0, fast: false}, wantIntro = true, HEAD = null;   // breathing zoom, the desk's heartbeat wave, the intro
+  var zoomB = 1, wave = 9, intro = {on: false, t: 0, T: 3.4, u: 0, fast: false}, wantIntro = true, HEAD = null, Z0 = 0.42;   // breathing zoom, the desk's heartbeat wave, the intro
   var COLS = [[118, 162, 255], [226, 96, 206], [240, 196, 96], [150, 160, 200], [236, 240, 255], [120, 220, 235]];
   var ARM = {long: COLS[0], short: COLS[1]}, GOLD = COLS[2], DIM = COLS[3], WHITE = COLS[4], CYAN = COLS[5], LV = 8;
   var FILL = COLS.map(function(c){ var o = []; for (var k = 0; k < LV; k++) o.push('rgba(' + c.join(',') + ',' + ((k + 0.5)/LV*0.95).toFixed(3) + ')'); return o; });
@@ -703,7 +705,7 @@ var Field = (function(){
     if (cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)) { cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr); }
     if (cv2.width !== Math.round(w*dpr2) || cv2.height !== Math.round(h*dpr2)) { cv2.width = Math.round(w*dpr2); cv2.height = Math.round(h*dpr2); }
     cv2.style.left = cv.offsetLeft + 'px'; cv2.style.top = cv.offsetTop + 'px'; cv2.style.width = w + 'px'; cv2.style.height = h + 'px'; ctx2.imageSmoothingQuality = 'high';
-    W = w; H = h; small = W < 480; tall = small && H > W*1.25; SC = Math.min(W, tall ? W*1.05 : H)*(small ? 0.47 : 0.40); CY = tall ? H*0.42 : H/2; bgc = null;
+    W = w; H = h; small = W < 480; tall = small && H > W*1.25; SC = Math.min(W, tall ? W*1.05 : H)*(small ? 0.47 : 0.40); CY = tall ? H*0.42 : H/2; bgc = null; Z0 = small ? 0.42 : 0.32;
   }
   var nebc = null, VIG = null;
   function backdrop(){                                                             // decoration only: a faint nebula (static) and a star field that drifts; drawn once per size
@@ -815,7 +817,7 @@ var Field = (function(){
     fade = Math.min(1, fade + dt/FADE_S);
     if (intro.on) {                                                                  // the intro: start outside the head, fly in through it
       intro.t += dt*(intro.fast ? 3.5 : 1); var iu = Math.min(1, intro.t/intro.T), ie = iu*iu*iu*(iu*(iu*6 - 15) + 10); intro.u = iu;
-      zoom = tgtZoom = 0.48 + 0.52*ie; fade = Math.min(1, 0.22 + 0.78*Math.max(0, Math.min(1, (iu - 0.12)/0.6)));
+      zoom = tgtZoom = Z0 + (1 - Z0)*ie; fade = Math.min(1, 0.22 + 0.78*Math.max(0, Math.min(1, (iu - 0.12)/0.6)));
       if (iu >= 1) { intro.on = false; zoom = tgtZoom = 1; fade = 1; showReset(); }
     }
     cyw = Math.cos(yaw); syw = Math.sin(yaw); cp = Math.cos(pitch); sp = Math.sin(pitch); zoomB = zoom*(reduced ? 1 : 1 + 0.012*Math.sin(t*0.35));
@@ -879,8 +881,8 @@ var Field = (function(){
     if (intro.on) drawHead(hp);
     ctx2.setTransform(dpr2, 0, 0, dpr2, 0, 0); ctx2.clearRect(0, 0, W, H); ctx2.globalAlpha = fade*(intro.on ? Math.max(0, Math.min(1, (intro.u - 0.55)/0.35)) : 1); labels(ctx2); ctx2.globalAlpha = 1;   // names, logos and numbers on the crisp layer; they wait for the fly-in
   }
-  /* The intro: a translucent robotic head in profile around the brain, with a 3D skull cage that turns with it. Decoration
-     only. The camera starts outside the head and flies in through the temple while the head fades and the neurons come up. */
+  /* The intro: a translucent chrome skull, face on, around the brain, with a 3D cage inside it that turns with the brain.
+     Decoration only. A scan line sweeps it, the eyes power up, and the camera flies in through the forehead while it fades. */
   function smooth(pts, closed){                                                      // a Catmull-Rom spline through the points, as a Path2D
     var P = new Path2D(), n = pts.length; P.moveTo(pts[0][0], pts[0][1]);
     for (var i = 0; i < (closed ? n : n - 1); i++) { var p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
@@ -889,53 +891,87 @@ var Field = (function(){
     if (closed) P.closePath(); return P;
   }
   function poly(segs){ var P = new Path2D(); segs.forEach(function(s){ s.forEach(function(q, i){ if (i) P.lineTo(q[0], q[1]); else P.moveTo(q[0], q[1]); }); }); return P; }
-  function buildHead(){                                                              // in brain units: the cranium is centred on the desk, the face points left
+  function mirror(pts){ return pts.map(function(q){ return [-q[0], q[1]]; }); }
+  function sym(right){ return right.concat(mirror(right.slice(1)).reverse()); }       // a right half, top to bottom, closed through its mirror image
+  function both(P, right, closed){ P.addPath(smooth(right, closed)); P.addPath(smooth(mirror(right), closed)); }
+  function buildHead(){                                                              // in brain units: the braincase is centred on the desk, y runs down
     if (typeof Path2D === 'undefined') return null;
-    var shell = smooth([[-0.95, -0.75], [-0.55, -1.12], [0, -1.27], [0.55, -1.16], [1.0, -0.82], [1.25, -0.25], [1.2, 0.35], [0.98, 0.85], [0.8, 1.15], [0.76, 1.6], [0.78, 2.05], [0.78, 2.35],
-                        [-0.02, 2.35], [-0.08, 1.98], [-0.35, 1.78], [-0.7, 1.64], [-0.86, 1.46], [-0.86, 1.28], [-0.98, 1.13], [-0.92, 0.98], [-1.3, 0.72], [-1.2, 0.45], [-1.05, 0.2], [-1.1, -0.03], [-1.06, -0.35]], true);
-    var seams = new Path2D();
-    [smooth([[-1.02, -0.3], [-0.75, -0.28], [-0.5, -0.05], [-0.52, 0.45], [-0.62, 0.95], [-0.42, 1.45], [-0.1, 1.72]], false),      // the faceplate
-     smooth([[0.38, 0.95], [0.05, 1.25], [-0.35, 1.5], [-0.68, 1.6]], false),                                                       // the jaw
-     smooth([[-0.88, -0.78], [-0.45, -1.0], [0.02, -1.13], [0.5, -1.03], [0.9, -0.72], [1.1, -0.25], [1.06, 0.3]], false),           // the cranium plate
-     poly([[[0.1, -1.15], [0.14, -0.98]], [[0.62, -1.05], [0.66, -0.88]], [[-0.3, -0.3], [-0.3, 0.55]], [[-0.1, -0.95], [-0.1, -0.5]]]),   // short seams
-     poly([[[0.14, 1.3], [0.14, 2.32]], [[0.36, 1.22], [0.36, 2.32]], [[0.58, 1.18], [0.58, 2.32]]])]                                  // neck cables
-    .forEach(function(q){ seams.addPath(q); });
-    var fit = new Path2D(); [0.27, 0.18, 0.07].forEach(function(r){ fit.moveTo(0.55 + r, 0.3); fit.arc(0.55, 0.3, r, 0, 6.283); });   // the ear module
-    fit.moveTo(0.46, 0.95); fit.arc(0.38, 0.95, 0.08, 0, 6.283);                                                                        // the jaw hinge
-    fit.moveTo(0.78, 2.12); fit.ellipse(0.38, 2.12, 0.4, 0.07, 0, 0, 6.283);                                                            // the collar
-    [1.42, 1.66, 1.9].forEach(function(y){ fit.rect(0.66, y, 0.1, 0.14); });                                                            // vertebrae
-    var lens = new Path2D(); lens.ellipse(-0.78, 0.04, 0.25, 0.11, -0.08, 0, 6.283);
-    var traces = poly([[[0.14, 1.5], [0.14, 1.1], [-0.05, 0.95], [-0.05, 0.55]], [[0.36, 1.3], [0.36, 1.0], [0.75, 0.75], [0.75, 0.5]], [[0.58, 1.3], [0.95, 1.0], [0.95, 0.55]],
-                       [[0.55, 0.03], [0.55, -0.45], [0.3, -0.7]], [[0.82, 0.3], [1.05, 0.05], [1.05, -0.3]], [[-0.55, -0.1], [-0.55, -0.6], [-0.3, -0.85]], [[-0.62, 1.3], [-0.4, 1.1], [-0.4, 0.7]]]);
-    var dots = [[-0.05, 0.55], [0.75, 0.5], [0.95, 0.55], [0.3, -0.7], [1.05, -0.3], [-0.3, -0.85], [-0.4, 0.7], [0.14, -0.98], [0.66, -0.88], [-0.3, 0.55]];
-    var cage = []; for (var r = 0; r < 7; r++) { var ring = []; for (var k = 0; k <= 36; k++) { var a = k/36*6.2832, RR = 1.12;
-      if (r < 3) { var yy = (r - 1)*0.55, rr = Math.sqrt(RR*RR - yy*yy); ring.push([Math.cos(a)*rr, yy, Math.sin(a)*rr]); }
-      else { var th = (r - 3)*Math.PI/4, cx = Math.cos(a)*RR, cy = Math.sin(a)*RR; ring.push([cx*Math.cos(th), cy, cx*Math.sin(th)]); } }
+    var Hd = {};
+    Hd.skull = smooth(sym([[0, -1.5], [0.5, -1.44], [0.95, -1.2], [1.25, -0.8], [1.38, -0.3], [1.36, 0.25], [1.28, 0.6], [1.3, 0.9], [1.18, 1.1], [1.1, 1.25], [1.0, 1.55], [0.95, 1.9], [0.88, 2.3], [0.7, 2.65], [0.42, 2.85], [0.15, 2.92]]), true);
+    Hd.brow = smooth([[-1.24, 0.42], [-0.68, 0.54], [-0.22, 0.68], [0, 0.75], [0.22, 0.68], [0.68, 0.54], [1.24, 0.42]], false);
+    Hd.sockets = new Path2D(); both(Hd.sockets, [[0.22, 0.9], [0.6, 0.78], [1.0, 0.74], [1.1, 0.98], [1.0, 1.3], [0.62, 1.42], [0.3, 1.33]], true);
+    Hd.nasal = smooth(sym([[0, 1.3], [0.16, 1.62], [0.21, 1.92], [0.1, 2.02], [0.02, 1.97]]), true);
+    var tu = [[-0.66, 2.06], [-0.35, 2.15], [0, 2.19], [0.35, 2.15], [0.66, 2.06]], tl = [[-0.62, 2.37], [-0.32, 2.44], [0, 2.47], [0.32, 2.44], [0.62, 2.37]];
+    function band(top, d){ return smooth(top.concat(top.slice().reverse().map(function(q){ return [q[0], q[1] + d]; })), true); }
+    Hd.teethU = band(tu, 0.27); Hd.teethL = band(tl, 0.22); Hd.mouth = band(tu.map(function(q){ return [q[0], q[1] + 0.27]; }), 0.1);
+    var dv = []; [-0.48, -0.32, -0.16, 0, 0.16, 0.32, 0.48].forEach(function(x){ dv.push([[x, 2.1], [x, 2.42]]); }); [-0.46, -0.24, 0, 0.24, 0.46].forEach(function(x){ dv.push([[x, 2.4], [x, 2.64]]); });
+    Hd.dividers = poly(dv);
+    var S2 = Hd.seams = new Path2D();
+    S2.addPath(smooth([[0, -1.5], [0.03, -1.0], [-0.02, -0.5], [0, -0.12]], false));                                               // the sagittal seam
+    both(S2, [[0.85, -1.25], [1.05, -0.9], [1.2, -0.5], [1.3, 0.02]], false);                                                      // coronal seams
+    S2.addPath(smooth([[-0.42, -0.78], [0, -0.98], [0.42, -0.78], [0.44, -0.2], [0, -0.02], [-0.44, -0.2]], true));                // the forehead plate
+    both(S2, [[1.1, 1.25], [0.8, 1.62], [0.5, 1.78]], false); both(S2, [[1.3, 0.9], [1.1, 1.25]], false);                         // cheekbones
+    both(S2, [[0.95, 1.95], [0.72, 2.06], [0.62, 2.38], [0.5, 2.62]], false);                                                      // the mandible
+    S2.addPath(smooth([[-0.42, 2.62], [0, 2.7], [0.42, 2.62]], false));                                                           // the chin plate
+    [1, -1].forEach(function(m){ S2.rect(m > 0 ? 0.98 : -1.3, -0.62, 0.32, 0.7); [-0.45, -0.3, -0.15].forEach(function(y){ S2.moveTo(m*1.04, y); S2.lineTo(m*1.24, y); }); });   // temple panels, vents
+    [0, 1, 2].forEach(function(k){ S2.rect(-0.14, 3.0 + k*0.24, 0.28, 0.17); });                                                   // the spine
+    both(S2, [[0.32, 2.95], [0.36, 3.7]], false); both(S2, [[0.5, 2.9], [0.6, 3.7]], false);                                      // cables
+    [1, -1].forEach(function(m){ S2.moveTo(m*0.26, 3.32); S2.lineTo(m*0.42, 3.34); S2.moveTo(m*0.44, 3.3); S2.lineTo(m*0.64, 3.32); });   // clamps
+    Hd.pistonBody = new Path2D(); Hd.pistons = new Path2D();
+    [1, -1].forEach(function(m){ var a = [m*1.14, 1.0], b = [m*0.9, 2.22], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), ux = dx/L, uy = dy/L, nx = -uy*0.05, ny = ux*0.05, mx = a[0] + ux*L*0.55, my = a[1] + uy*L*0.55;
+      Hd.pistonBody.moveTo(a[0] + nx, a[1] + ny); Hd.pistonBody.lineTo(mx + nx, my + ny); Hd.pistonBody.lineTo(mx - nx, my - ny); Hd.pistonBody.lineTo(a[0] - nx, a[1] - ny); Hd.pistonBody.closePath();
+      Hd.pistons.moveTo(mx, my); Hd.pistons.lineTo(b[0], b[1]); Hd.pistons.moveTo(b[0] + 0.05, b[1]); Hd.pistons.arc(b[0], b[1], 0.05, 0, 6.283); });   // jaw pistons
+    Hd.rings = new Path2D(); [1, -1].forEach(function(m){ [0.11, 0.04].forEach(function(r){ Hd.rings.moveTo(m*0.97 + r, 1.85); Hd.rings.arc(m*0.97, 1.85, r, 0, 6.283); }); [0.07, 0.025].forEach(function(r){ Hd.rings.moveTo(m*1.28 + r, 0.2); Hd.rings.arc(m*1.28, 0.2, r, 0, 6.283); }); });   // jaw hinges, temple bolts
+    Hd.rivets = new Path2D(); [[0.35, -1.12], [0.95, -0.78], [1.22, -0.05], [0.62, 0.45], [0, -0.45], [0.3, 2.78]].forEach(function(q){ [1, -1].forEach(function(m){ if (q[0] === 0 && m < 0) return; Hd.rivets.moveTo(m*q[0] + 0.03, q[1]); Hd.rivets.arc(m*q[0], q[1], 0.03, 0, 6.283); }); });
+    Hd.lens = new Path2D(); [1, -1].forEach(function(m){ Hd.lens.moveTo(m*0.62 + 0.2, 1.06); Hd.lens.ellipse(m*0.62, 1.06, 0.2, 0.11, 0, 0, 6.283); });
+    Hd.plates = new Path2D();                                                                                                       // solid-looking metal: cheek plates, the mandible, the brow bar, the forehead plate
+    both(Hd.plates, [[1.3, 0.9], [1.1, 1.25], [0.8, 1.62], [0.5, 1.78], [0.62, 1.42], [1.0, 1.3], [1.1, 0.98]], true);
+    both(Hd.plates, [[0.95, 1.95], [0.72, 2.06], [0.62, 2.38], [0.5, 2.62], [0.15, 2.92], [0.42, 2.85], [0.7, 2.65], [0.88, 2.3], [0.95, 1.9]], true);
+    Hd.plates.addPath(smooth([[-1.24, 0.42], [-0.68, 0.54], [-0.22, 0.68], [0, 0.75], [0.22, 0.68], [0.68, 0.54], [1.24, 0.42], [1.2, 0.3], [0.66, 0.42], [0.2, 0.56], [0, 0.62], [-0.2, 0.56], [-0.66, 0.42], [-1.2, 0.3]], true));
+    Hd.plates.addPath(smooth([[-0.42, -0.78], [0, -0.98], [0.42, -0.78], [0.44, -0.2], [0, -0.02], [-0.44, -0.2]], true));
+    Hd.shine = new Path2D(); Hd.shine.addPath(smooth([[-0.95, -0.95], [-0.45, -1.28], [0.15, -1.4]], false)); Hd.shine.addPath(smooth([[0.7, -1.3], [1.05, -1.0], [1.24, -0.6]], false));   // specular highlights on the dome
+    Hd.glint = new Path2D(); [1, -1].forEach(function(m){ Hd.glint.moveTo(m*0.62 - 0.55, 1.06); Hd.glint.lineTo(m*0.62 + 0.55, 1.06); });
+    var e = document.createElement('canvas'); e.width = e.height = 64; var g = e.getContext('2d'), rg = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    rg.addColorStop(0, 'rgba(255,215,190,1)'); rg.addColorStop(0.18, 'rgba(255,110,70,.95)'); rg.addColorStop(0.5, 'rgba(255,40,30,.4)'); rg.addColorStop(1, 'rgba(255,30,20,0)'); g.fillStyle = rg; g.fillRect(0, 0, 64, 64); Hd.eye = e;
+    var cage = []; for (var r = 0; r < 7; r++) { var ring = []; for (var k = 0; k <= 36; k++) { var an = k/36*6.2832, RR = 1.12;
+      if (r < 3) { var yy = (r - 1)*0.55, rr = Math.sqrt(RR*RR - yy*yy); ring.push([Math.cos(an)*rr, yy, Math.sin(an)*rr]); }
+      else { var th = (r - 3)*Math.PI/4, cx = Math.cos(an)*RR, cy = Math.sin(an)*RR; ring.push([cx*Math.cos(th), cy, cx*Math.sin(th)]); } }
       cage.push(ring); }
-    return {shell: shell, seams: seams, fit: fit, lens: lens, traces: traces, dots: dots, cage: cage};
+    Hd.cage = cage; return Hd;
   }
   function drawHead(hp){
     if (!HEAD) HEAD = buildHead(); if (!HEAD) return;
-    var u = intro.u, ha = Math.min(1, u/0.1)*(u < 0.5 ? 1 : Math.max(0, 1 - (u - 0.5)/0.42)), ca = Math.min(1, u/0.15)*Math.max(0, 1 - Math.max(0, u - 0.4)/0.45);
+    var u = intro.u, Hd = HEAD, ha = Math.min(1, u/0.08)*(u < 0.52 ? 1 : Math.max(0, 1 - (u - 0.52)/0.4)), ca = Math.min(1, u/0.15)*Math.max(0, 1 - Math.max(0, u - 0.45)/0.45);
     if (ha <= 0.005 && ca <= 0.005) return;
     var s = SC*zoomB*hp[2], px = 1/s;                                                  // px: one screen pixel in head units
     ctx.globalCompositeOperation = 'lighter';
-    if (ca > 0.005) {                                                                // the skull cage, in 3D, so it turns with the brain
+    if (ca > 0.005) {                                                                // the cage, in 3D, so it turns with the brain
       ctx.lineWidth = 0.7; ctx.strokeStyle = 'rgba(140,170,240,' + (0.22*ca).toFixed(3) + ')'; ctx.beginPath();
-      HEAD.cage.forEach(function(ring){ ring.forEach(function(q, i){ var w = proj(q[0], q[1], q[2]); if (i) ctx.lineTo(w[0], w[1]); else ctx.moveTo(w[0], w[1]); }); }); ctx.stroke(); }
+      Hd.cage.forEach(function(ring){ ring.forEach(function(q, i){ var w = proj(q[0], q[1], q[2]); if (i) ctx.lineTo(w[0], w[1]); else ctx.moveTo(w[0], w[1]); }); }); ctx.stroke(); }
     if (ha <= 0.005) return;
     ctx.save(); ctx.translate(hp[0], hp[1]); ctx.scale(s, s); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    var g = ctx.createRadialGradient(0, 0.3, 0.3, 0, 0.3, 2.3); g.addColorStop(0, 'rgba(90,120,220,' + (0.09*ha).toFixed(3) + ')'); g.addColorStop(1, 'rgba(90,120,220,0)'); ctx.fillStyle = g; ctx.fill(HEAD.shell);   // translucent glass
-    ctx.lineWidth = 6*px; ctx.strokeStyle = 'rgba(120,160,255,' + (0.10*ha).toFixed(3) + ')'; ctx.stroke(HEAD.shell);                 // glow
-    ctx.lineWidth = 1.2*px; ctx.strokeStyle = 'rgba(205,220,255,' + (0.75*ha).toFixed(3) + ')'; ctx.stroke(HEAD.shell);
-    ctx.lineWidth = 0.9*px; ctx.strokeStyle = 'rgba(170,195,255,' + (0.42*ha).toFixed(3) + ')'; ctx.stroke(HEAD.seams); ctx.stroke(HEAD.fit);
-    ctx.lineWidth = 0.8*px; ctx.strokeStyle = 'rgba(120,220,235,' + (0.35*ha).toFixed(3) + ')'; ctx.stroke(HEAD.traces);
-    ctx.fillStyle = 'rgba(160,230,245,' + (0.8*ha).toFixed(3) + ')'; HEAD.dots.forEach(function(d){ ctx.beginPath(); ctx.arc(d[0], d[1], 2.2*px, 0, 6.283); ctx.fill(); });
-    var blink = u < 0.3 ? 0.5 + 0.5*Math.sin(u/0.3*Math.PI) : 1;                       // the eye wakes
-    ctx.lineWidth = 1*px; ctx.strokeStyle = 'rgba(200,235,255,' + (0.7*ha).toFixed(3) + ')'; ctx.stroke(HEAD.lens);
-    ctx.fillStyle = 'rgba(150,225,245,' + (0.25*ha*blink).toFixed(3) + ')'; ctx.fill(HEAD.lens);
-    ctx.globalAlpha = 0.9*ha*blink; ctx.drawImage(SPR[5], -0.8 - 0.22, 0.04 - 0.22, 0.44, 0.44); ctx.globalAlpha = 1;
-    ctx.fillStyle = 'rgba(240,250,255,' + (0.95*ha*blink).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(-0.8, 0.04, 0.045, 0, 6.283); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = 'rgba(4,5,10,' + (0.8*ha).toFixed(3) + ')'; ctx.fill(Hd.sockets); ctx.fill(Hd.nasal); ctx.fill(Hd.mouth);   // the hollows
+    ctx.globalCompositeOperation = 'lighter';
+    var g = ctx.createLinearGradient(0, -1.5, 0, 2.9); g.addColorStop(0, 'rgba(150,170,210,' + (0.15*ha).toFixed(3) + ')'); g.addColorStop(0.45, 'rgba(100,115,150,' + (0.07*ha).toFixed(3) + ')'); g.addColorStop(1, 'rgba(70,80,110,' + (0.04*ha).toFixed(3) + ')');
+    ctx.fillStyle = g; ctx.fill(Hd.skull);                                                                                          // chrome, translucent
+    ctx.fillStyle = 'rgba(225,235,255,' + (0.13*ha).toFixed(3) + ')'; ctx.fill(Hd.teethU); ctx.fill(Hd.teethL); ctx.fillStyle = 'rgba(170,190,230,' + (0.14*ha).toFixed(3) + ')'; ctx.fill(Hd.pistonBody);
+    ctx.fillStyle = 'rgba(160,180,225,' + (0.11*ha).toFixed(3) + ')'; ctx.fill(Hd.plates);
+    function st(P, w, c, a){ ctx.lineWidth = w*px; ctx.strokeStyle = 'rgba(' + c + ',' + (a*ha).toFixed(3) + ')'; ctx.stroke(P); }
+    st(Hd.skull, 7, '120,160,255', 0.09); st(Hd.skull, 1.6, '205,220,245', 0.88);
+    st(Hd.brow, 5, '120,160,255', 0.1); st(Hd.brow, 2.4, '220,232,252', 0.9);
+    st(Hd.sockets, 1.3, '195,210,240', 0.85); st(Hd.nasal, 1, '190,205,235', 0.7); st(Hd.teethU, 0.9, '205,220,245', 0.6); st(Hd.teethL, 0.9, '205,220,245', 0.6); st(Hd.dividers, 0.7, '205,220,245', 0.45);
+    st(Hd.seams, 0.9, '170,190,230', 0.5); st(Hd.pistons, 1.1, '205,220,245', 0.75); st(Hd.pistonBody, 0.8, '205,220,245', 0.6); st(Hd.rings, 0.9, '200,215,240', 0.7);
+    ctx.fillStyle = 'rgba(225,235,255,' + (0.75*ha).toFixed(3) + ')'; ctx.fill(Hd.rivets);
+    st(Hd.shine, 8, '200,225,255', 0.08); st(Hd.shine, 2.2, '245,250,255', 0.5);
+    if (u < 0.36) { var sy = -1.7 + (u/0.36)*5.5, sa = (1 - u/0.36)*ha;                                                            // a scan line sweeps the skull as it boots
+      var sg = ctx.createLinearGradient(-1.6, 0, 1.6, 0); sg.addColorStop(0, 'rgba(120,220,255,0)'); sg.addColorStop(0.5, 'rgba(160,235,255,' + (0.9*sa).toFixed(3) + ')'); sg.addColorStop(1, 'rgba(120,220,255,0)');
+      ctx.fillStyle = sg; ctx.fillRect(-1.6, sy - 0.012, 3.2, 0.024); ctx.fillStyle = 'rgba(120,220,255,' + (0.06*sa).toFixed(3) + ')'; ctx.fillRect(-1.6, sy - 0.25, 3.2, 0.25); }
+    var ey = u < 0.06 ? 0 : Math.min(1, (u - 0.06)/0.28), fl = ey < 1 ? 0.55 + 0.45*Math.abs(Math.sin(t*31)) : 0.9 + 0.1*Math.sin(t*9);   // the eyes power up, with a flicker
+    [-0.62, 0.62].forEach(function(x){ ctx.globalAlpha = ha*ey*fl; ctx.drawImage(Hd.eye, x - 0.5, 1.06 - 0.5, 1.0, 1.0); ctx.globalAlpha = 1;
+      ctx.fillStyle = 'rgba(255,240,230,' + (0.95*ha*ey*fl).toFixed(3) + ')'; ctx.beginPath(); ctx.arc(x, 1.06, 0.065, 0, 6.283); ctx.fill(); });
+    st(Hd.lens, 1, '255,140,110', 0.6*ey);
+    var gl = ctx.createLinearGradient(-1.2, 0, 1.2, 0); gl.addColorStop(0, 'rgba(255,120,90,0)'); gl.addColorStop(0.5, 'rgba(255,170,140,' + (0.55*ha*ey*fl).toFixed(3) + ')'); gl.addColorStop(1, 'rgba(255,120,90,0)');
+    ctx.lineWidth = 1.2*px; ctx.strokeStyle = gl; ctx.stroke(Hd.glint);                                                             // a glint through each eye
     ctx.restore();
   }
   function labels(ctx){
@@ -985,7 +1021,7 @@ var Field = (function(){
     if (offScreen) { pending = [s, scene, focusSym]; return; }
     var sameSize = W === (cv.clientWidth || 600) && H === (cv.clientHeight || W), rebuild = !S || S.session !== s.session || S !== s || !sameSize;
     if (rebuild) { if (!S || S.session !== s.session) fade = 0; S = s; size(); build(s);
-      if (wantIntro && !reduced && !focusSym) { intro.on = true; intro.t = 0; intro.u = 0; intro.fast = false; zoom = tgtZoom = 0.48; fade = 0; } wantIntro = false; }
+      if (wantIntro && !reduced && !focusSym) { intro.on = true; intro.t = 0; intro.u = 0; intro.fast = false; zoom = tgtZoom = Z0; fade = 0; } wantIntro = false; }
     if (focusSym && intro.on) { intro.on = false; fade = 1; }
     S = s; sc = scene;
     foc = focusSym ? nodes.filter(function(nd){ return nd.row.symbol === focusSym; })[0] || null : null;
